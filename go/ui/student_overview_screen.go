@@ -1,20 +1,30 @@
 package ui
 
 import (
+	"bufio"
+	"fmt"
+	"go-project/core"
 	"go-project/util"
+	"os"
+	"strconv"
+	"strings"
 )
 
 type StudentOverviewScreen struct {
 	BaseScreen
 }
 
-func NewStudentOverviewScreen() *StudentOverviewScreen {
+func NewStudentOverviewScreen(manager *ScreenManager) *StudentOverviewScreen {
 	s := &StudentOverviewScreen{}
 	s.Title = "STUDENTS"
 	s.Functions = map[string]string{
 		"i": "Show Student Information",
 		"B": "Back",
 	}
+	s.FunctionsOrder = []string{
+		"i", "B",
+	}
+	s.manager = manager
 	return s
 }
 
@@ -22,13 +32,55 @@ func (s *StudentOverviewScreen) Render() {
 	util.ClearScreen()
 	s.RenderHeader()
 	s.RenderFunctions()
+
+	store := core.GetDataStore()
+	students := store.Students
+	if len(students) == 0 {
+		fmt.Println("No students found.")
+	} else {
+		fmt.Println("List of Students:")
+		fmt.Println("----------------")
+		for _, student := range students {
+			fmt.Printf("ID=%d | Name=%s | Email=%s\n", student.ID, student.Name, student.Email)
+		}
+	}
+
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		input, err := reader.ReadString('\n')
+		if err != nil {
+			fmt.Println("❌ Error:", err)
+		} else {
+			input = strings.TrimSpace(input)
+			functionCalled := s.TryHandleFunctionKey(input)
+			if functionCalled {
+				break
+			}
+
+			id, parseErr := strconv.Atoi(input)
+
+			if parseErr != nil {
+				fmt.Println("❌ Invalid input, please enter a valid student id")
+				// handle invalid input, e.g., continue loop
+			} else {
+				// Check if student exists in datastore
+				_, studentExists := store.GetStudentById(id)
+				if studentExists {
+					fmt.Printf("✅ Student with ID %d exists\n", id)
+				} else {
+					fmt.Printf("❌ No student found with ID %d\n", id)
+				}
+			}
+		}
+	}
 }
 
-func (s *StudentOverviewScreen) HandleInput(input string) (Screen, bool) {
+func (s *StudentOverviewScreen) TryHandleFunctionKey(input string) bool {
 	switch input {
 	case "B", "b":
-		return nil, false
+		s.manager.GoBack()
+		return true
 	default:
-		return nil, false
+		return false
 	}
 }

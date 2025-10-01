@@ -3,8 +3,10 @@ package ui
 import "fmt"
 
 type BaseScreen struct {
-	Title     string
-	Functions map[string]string
+	Title          string
+	Functions      map[string]string
+	FunctionsOrder []string
+	manager        *ScreenManager
 }
 
 func (b *BaseScreen) RenderHeader() {
@@ -13,8 +15,18 @@ func (b *BaseScreen) RenderHeader() {
 
 func (b *BaseScreen) RenderFunctions() {
 	line := ""
-	for key, desc := range b.Functions {
-		line += fmt.Sprintf("[%s: %s] ", key, desc)
+	for _, k := range b.FunctionsOrder {
+		line += fmt.Sprintf("[%s: %s] ", k, b.Functions[k])
 	}
 	fmt.Println(line)
+}
+
+func (b *BaseScreen) RenderFunctionList() {
+	for _, k := range b.FunctionsOrder {
+		fmt.Printf("%s: %s \n", k, b.Functions[k])
+	}
+}
+
+func (b *BaseScreen) Manager() *ScreenManager {
+	return b.manager
 }

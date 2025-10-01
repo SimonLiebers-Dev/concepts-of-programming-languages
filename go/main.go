@@ -1,36 +1,34 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
+	"go-project/core"
 	"go-project/ui"
-	"os"
-	"strings"
 )
 
 func main() {
-	reader := bufio.NewReader(os.Stdin)
+	// Initialize data store
+	store := core.GetDataStore()
 
-	screenStack := []ui.Screen{ui.NewMenuScreen()}
+	// Load data from file
+	loadErr := store.Load()
 
-	for len(screenStack) > 0 {
-		current := screenStack[len(screenStack)-1]
-		current.Render()
-
-		input, _ := reader.ReadString('\n')
-		input = strings.TrimSpace(input)
-
-		nextScreen, quit := current.HandleInput(input)
-		if quit {
-			break
-		}
-
-		if nextScreen != nil {
-			screenStack = append(screenStack, nextScreen)
-		} else if input == "B" || input == "b" {
-			screenStack = screenStack[:len(screenStack)-1]
-		}
+	// Print error if data cannot be loaded
+	if loadErr != nil {
+		fmt.Println("⚠️ Could not load data:", loadErr) // Display error
+		return
 	}
 
-	fmt.Println("Bye!")
+	// Initialize new screen manager
+	manager := ui.NewScreenManager()
+
+	// Pass manager to screens in constructor
+	manager.PushScreen(ui.NewMenuScreen(manager))
+
+	manager.Run()
+
+	saveErr := store.Save() // Save data to json file
+	if saveErr != nil {
+		fmt.Println("⚠️ Could not save data:", saveErr) // Display error
+	}
 }

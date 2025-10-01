@@ -1,42 +1,68 @@
 package ui
 
 import (
+	"bufio"
+	"fmt"
 	"go-project/util"
+	"os"
+	"strings"
 )
 
 type MenuScreen struct {
 	BaseScreen
 }
 
-func NewMenuScreen() *MenuScreen {
-	m := &MenuScreen{}
-	m.Title = "MAIN MENU"
-	m.Functions = map[string]string{
+func NewMenuScreen(manager *ScreenManager) *MenuScreen {
+	s := &MenuScreen{}
+	s.Title = "MAIN MENU"
+	s.Functions = map[string]string{
 		"S": "Manage Students",
 		"L": "Manage Lecturers",
 		"C": "Manage Courses",
 		"Q": "Quit",
 	}
-	return m
+	s.FunctionsOrder = []string{
+		"S", "L", "C", "Q",
+	}
+	s.manager = manager
+	return s
 }
 
-func (m *MenuScreen) Render() {
+func (s *MenuScreen) Render() {
 	util.ClearScreen()
-	m.RenderHeader()
-	m.RenderFunctions()
+	s.RenderHeader()
+	s.RenderFunctionList()
+
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		input, err := reader.ReadString('\n')
+		if err != nil {
+			fmt.Println("❌ Error:", err)
+		} else {
+			input = strings.TrimSpace(input)
+			functionCalled := s.TryHandleFunctionKey(input)
+			if functionCalled {
+				break
+			}
+
+			// Rerender screen if no valid function was pressed
+			s.Render()
+		}
+	}
 }
 
-func (m *MenuScreen) HandleInput(input string) (Screen, bool) {
+func (s *MenuScreen) TryHandleFunctionKey(input string) bool {
 	switch input {
 	case "S", "s":
-		return NewStudentOverviewScreen(), false
+		s.manager.PushScreen(NewStudentOverviewScreen(s.manager))
+		return true
 	case "L", "l":
-		return NewLecturerOverviewScreen(), false
+		s.manager.PushScreen(NewLecturerOverviewScreen(s.manager))
+		return true
 	case "C", "c":
-		return NewCourseOverviewScreen(), false
-	case "Q", "q":
-		return nil, true
+		s.manager.PushScreen(NewCourseOverviewScreen(s.manager))
+		return true
 	default:
-		return nil, false
+		return false
 	}
 }

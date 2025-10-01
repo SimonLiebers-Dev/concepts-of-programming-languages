@@ -1,0 +1,28 @@
+{
+  "Students": {
+    "1001": {
+      "id": 1001,
+      "name": "Alice Example",
+      "email": "alice@example.com"
+    },
+    "1002": {
+      "id": 1002,
+      "name": "Bob Example",
+      "email": "bob@example.com"
+    },
+    "1003": {
+      "id": 1003,
+      "name": "Charlie Example",
+      "email": "charlie@example.com"
+    }
+  },
+  "Lecturers": {},
+  "Courses": {
+    "1005": {
+      "id": 1005,
+      "name": "Test",
+      "lecturer_id": 0,
+      "student_ids": null
+    }
+  }
+}
