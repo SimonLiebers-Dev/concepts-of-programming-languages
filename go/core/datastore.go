@@ -129,6 +129,35 @@ func (ds *DataStore) GetCourseById(id int) (*models.Course, bool) {
 	return course, ok
 }
 
+func (ds *DataStore) GetCoursesByStudentId(studentID int) []*models.Course {
+	ds.mu.Lock()
+	defer ds.mu.Unlock()
+
+	var courses []*models.Course
+	for _, course := range ds.Courses {
+		for _, id := range course.StudentIDs {
+			if id == studentID {
+				courses = append(courses, course)
+				break
+			}
+		}
+	}
+	return courses
+}
+
+func (ds *DataStore) GetCoursesByLecturerId(lecturerID int) []*models.Course {
+	ds.mu.Lock()
+	defer ds.mu.Unlock()
+
+	var courses []*models.Course
+	for _, course := range ds.Courses {
+		if course.LecturerID == lecturerID {
+			courses = append(courses, course)
+		}
+	}
+	return courses
+}
+
 func (ds *DataStore) AddLecturer(l *models.Lecturer) error {
 	ds.mu.Lock()
 	defer ds.mu.Unlock()

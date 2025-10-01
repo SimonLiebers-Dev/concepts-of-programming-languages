@@ -3,6 +3,7 @@ package ui
 import (
 	"bufio"
 	"fmt"
+	"github.com/jedib0t/go-pretty/v6/table"
 	"go-project/core"
 	"go-project/util"
 	"os"
@@ -38,11 +39,19 @@ func (s *CourseOverviewScreen) Render() {
 	if len(courses) == 0 {
 		fmt.Println("No courses found.")
 	} else {
-		fmt.Println("List of Courses:")
-		fmt.Println("----------------")
+		t := table.NewWriter()
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"#", "Name", "Lecturer", "Number of Students"})
 		for _, course := range courses {
-			fmt.Printf("ID: %d | Name: %s | Lecturer: %d\n", course.ID, course.Name, course.LecturerID)
+			var displayLecturerId string
+			if course.LecturerID > 0 {
+				displayLecturerId = fmt.Sprintf("%d", course.LecturerID)
+			} else {
+				displayLecturerId = "-"
+			}
+			t.AppendRow(table.Row{course.ID, course.Name, displayLecturerId, len(course.StudentIDs)})
 		}
+		t.Render()
 	}
 
 	reader := bufio.NewReader(os.Stdin)

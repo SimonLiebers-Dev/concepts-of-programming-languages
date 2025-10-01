@@ -62,6 +62,9 @@ func (s *MenuScreen) TryHandleFunctionKey(input string) bool {
 	case "C", "c":
 		s.manager.PushScreen(NewCourseOverviewScreen(s.manager))
 		return true
+	case "Q", "q":
+		s.manager.Quit()
+		return true
 	default:
 		return false
 	}

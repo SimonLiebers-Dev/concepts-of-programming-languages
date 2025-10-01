@@ -8,6 +8,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/jedib0t/go-pretty/v6/table"
 )
 
 type LecturerOverviewScreen struct {
@@ -37,11 +39,14 @@ func (s *LecturerOverviewScreen) Render() {
 	if len(lecturers) == 0 {
 		fmt.Println("No lecturers found.")
 	} else {
-		fmt.Println("List of Lecturers:")
-		fmt.Println("----------------")
+		t := table.NewWriter()
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"#", "Name", "Email", "Number of courses"})
 		for _, lecturer := range lecturers {
-			fmt.Printf("ID=%d | Name=%s | Email=%s\n", lecturer.ID, lecturer.Name, lecturer.Email)
+			lecturerCourses := store.GetCoursesByLecturerId(lecturer.ID)
+			t.AppendRow(table.Row{lecturer.ID, lecturer.Name, lecturer.Email, len(lecturerCourses)})
 		}
+		t.Render()
 	}
 
 	reader := bufio.NewReader(os.Stdin)

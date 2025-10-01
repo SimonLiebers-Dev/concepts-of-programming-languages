@@ -1,7 +1,5 @@
 package ui
 
-import "fmt"
-
 type ScreenManager struct {
 	screens []Screen
 	running bool
@@ -42,8 +40,6 @@ func (sm *ScreenManager) Run() {
 		current := sm.CurrentScreen()
 		if current != nil {
 			current.Render()
-			fmt.Println("RENDER")
 		}
 	}
-	fmt.Println("Exiting program.")
 }
