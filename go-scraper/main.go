@@ -112,9 +112,21 @@ func main() {
 		pages = core.ScrapeParallel(urls)
 	}
 
-	// Print information about number of results and duration
-	fmt.Printf("✅ Scraped %d pages in %v\n", len(pages), time.Since(start))
+	// Count successes and errors
+	successCount := 0
+	errorCount := 0
+	for _, p := range pages {
+		if p.Error != "" {
+			errorCount++
+		} else {
+			successCount++
+		}
+	}
 
+	// Print information about number of results and duration
+	fmt.Printf("✅ %d successful | ❌ %d failed | ⏱️ Duration: %v\n", successCount, errorCount, time.Since(start))
+
+	// Print separator
 	ui.PrintSeparator()
 
 	// Prompt for saving results
