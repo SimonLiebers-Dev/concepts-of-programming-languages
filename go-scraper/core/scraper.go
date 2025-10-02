@@ -1,0 +1,84 @@
+package core
+
+import (
+	"fmt"
+	"go-scraper/models"
+	"io"
+	"net/http"
+	"strings"
+	"time"
+
+	"golang.org/x/net/html"
+)
+
+func Scrape(url string) (*models.Page, error) {
+	resp, err := http.Get(url)
+
+	errorResult := &models.Page{
+		TimeStamp: time.Now(),
+	}
+
+	if err != nil {
+		errorResult.Error = "Failed to fetch url: " + err.Error()
+		return errorResult, fmt.Errorf("failed to fetch URL %s: %w", url, err)
+	}
+	defer func() {
+		if closeError := resp.Body.Close(); closeError != nil {
+			fmt.Printf("⚠️ Warning: error closing response body from %s: %v\n", url, closeError)
+		}
+	}()
+
+	if resp.StatusCode != http.StatusOK {
+		errorResult.Error = "Status code " + resp.Status
+		return errorResult, fmt.Errorf("failed to fetch URL %s: status code %d", url, resp.StatusCode)
+	}
+
+	title, links, err := parseHtml(resp.Body)
+	if err != nil {
+		errorResult.Error = "Failed to parse html: " + err.Error()
+		return errorResult, fmt.Errorf("failed to parse HTML from %s: %w", url, err)
+	}
+
+	page := &models.Page{
+		URL:       url,
+		Title:     title,
+		Links:     links,
+		TimeStamp: time.Now(),
+	}
+	return page, nil
+}
+
+func parseHtml(body io.Reader) (string, []string, error) {
+	doc, err := html.Parse(body)
+	if err != nil {
+		return "", nil, err
+	}
+
+	var title string
+	var links []string
+
+	var f func(*html.Node)
+	f = func(n *html.Node) {
+		if n.Type == html.ElementNode {
+			if n.Data == "title" && n.FirstChild != nil {
+				title = n.FirstChild.Data
+			}
+			if n.Data == "a" {
+				for _, attr := range n.Attr {
+					if attr.Key == "href" && attr.Val != "" {
+						links = append(links, attr.Val)
+					}
+				}
+			}
+		}
+
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			f(c)
+		}
+	}
+
+	f(doc)
+
+	return strings.TrimSpace(title), links, nil
+
+}

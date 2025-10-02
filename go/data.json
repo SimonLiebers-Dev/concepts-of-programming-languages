@@ -2,27 +2,55 @@
   "Students": {
     "1001": {
       "id": 1001,
-      "name": "Alice Example",
-      "email": "alice@example.com"
+      "name": "Student 1",
+      "email": "s1@example.com"
     },
     "1002": {
       "id": 1002,
-      "name": "Bob Example",
-      "email": "bob@example.com"
+      "name": "Student 2",
+      "email": "s2@example.com"
     },
     "1003": {
       "id": 1003,
-      "name": "Charlie Example",
-      "email": "charlie@example.com"
+      "name": "Student 3",
+      "email": "s3@example.com"
     }
   },
-  "Lecturers": {},
+  "Lecturers": {
+    "1001": {
+      "id": 1001,
+      "name": "Lecturer 1",
+      "email": "l1@example.com"
+    },
+    "1002": {
+      "id": 1002,
+      "name": "Lecturer 2",
+      "email": "l2@example.com"
+    },
+    "1003": {
+      "id": 1003,
+      "name": "Lecturer 3",
+      "email": "l3@example.com"
+    }
+  },
   "Courses": {
-    "1005": {
-      "id": 1005,
-      "name": "Test",
-      "lecturer_id": 0,
-      "student_ids": null
+    "1001": {
+      "id": 1001,
+      "name": "Course 1",
+      "lecturer_id": 1001,
+      "student_ids": [
+        1001,
+        1002
+      ]
+    },
+    "1002": {
+      "id": 1002,
+      "name": "Course 2",
+      "lecturer_id": 1003,
+      "student_ids": [
+        1002,
+        1003
+      ]
     }
   }
 }

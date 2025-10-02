@@ -6,6 +6,7 @@ import (
 	"go-project/core"
 	"go-project/util"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -20,11 +21,11 @@ func NewStudentOverviewScreen(manager *ScreenManager) *StudentOverviewScreen {
 	s := &StudentOverviewScreen{}
 	s.Title = "STUDENTS"
 	s.Functions = map[string]string{
-		"i": "Show Student Information",
+		"#": "Show Student Information",
 		"B": "Back",
 	}
 	s.FunctionsOrder = []string{
-		"i", "B",
+		"#", "B",
 	}
 	s.manager = manager
 	return s
@@ -36,7 +37,11 @@ func (s *StudentOverviewScreen) Render() {
 	s.RenderFunctions()
 
 	store := core.GetDataStore()
-	students := store.Students
+	students := store.GetStudentsSorted()
+	sort.Slice(students, func(i, j int) bool {
+		return students[i].ID < students[j].ID
+	})
+
 	if len(students) == 0 {
 		fmt.Println("No students found.")
 	} else {

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"go-project/models"
 	"os"
+	"sort"
 	"sync"
 )
 
@@ -101,6 +102,22 @@ func (ds *DataStore) GetStudentById(id int) (*models.Student, bool) {
 
 	student, ok := ds.Students[id]
 	return student, ok
+}
+
+func (ds *DataStore) GetStudentsSorted() []*models.Student {
+	ds.mu.Lock()
+	defer ds.mu.Unlock()
+
+	students := make([]*models.Student, 0, len(ds.Students))
+	for _, s := range ds.Students {
+		students = append(students, s)
+	}
+
+	sort.Slice(students, func(i, j int) bool {
+		return students[i].ID < students[j].ID
+	})
+
+	return students
 }
 
 func (ds *DataStore) AddCourse(c *models.Course) error {
