@@ -25,6 +25,9 @@ Both versions share the same logic and structure to ensure a fair comparison.
 - Graceful error handling (invalid URLs, timeouts, etc.)
 - Saves results as JSON (optional)
 
+## 🖼️ Example Output
+![WebScraper CLI Output](.pics/example_screenshot.png)
+
 ## 📁 Project Structure
 ```
 root/

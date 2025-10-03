@@ -11,17 +11,29 @@ import (
 	"golang.org/x/net/html"
 )
 
-func Scrape(url string) (*models.Page, error) {
-	resp, err := http.Get(url)
+const UserAgent = "Mozilla/5.0 (iPad; U; CPU OS 4_3_2 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Mobile/8H7"
 
+func Scrape(url string) (*models.Page, error) {
 	errorResult := &models.Page{
 		TimeStamp: time.Now(),
 	}
+
+	client := &http.Client{}
+	req, createReqError := http.NewRequest("GET", url, nil)
+
+	if createReqError != nil {
+		errorResult.Error = "Failed to create request: " + createReqError.Error()
+    	return errorResult, fmt.Errorf("failed to create request: %w", createReqError)
+	}
+
+	req.Header.Set("User-Agent", UserAgent)
+	resp, err := client.Do(req)
 
 	if err != nil {
 		errorResult.Error = "Failed to fetch url: " + err.Error()
 		return errorResult, fmt.Errorf("failed to fetch URL %s: %w", url, err)
 	}
+
 	defer func() {
 		if closeError := resp.Body.Close(); closeError != nil {
 			fmt.Printf("⚠️ Warning: error closing response body from %s: %v\n", url, closeError)

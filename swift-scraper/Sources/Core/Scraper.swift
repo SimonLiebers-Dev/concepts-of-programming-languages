@@ -9,6 +9,8 @@ import Foundation
 import SwiftSoup
 
 struct Scraper {
+    private static let userAgent = "Mozilla/5.0 (iPad; U; CPU OS 4_3_2 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Mobile/8H7"
+
     static func scrape(url: String) async -> Page {
         let timestamp = Date()
 
@@ -23,7 +25,7 @@ struct Scraper {
         }
 
         do {
-            let (data, response) = try await URLSession.shared.data(from: u)
+            let (data, response) = try await fetchURL(u)
 
             guard let httpResponse = response as? HTTPURLResponse else {
                 return Page(
@@ -89,5 +91,18 @@ struct Scraper {
         }
 
         return (title.trimmingCharacters(in: .whitespacesAndNewlines), links)
+    }
+
+    private static func fetchURL(_ url: URL) async throws -> (Data, URLResponse) {
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+
+        request.setValue(
+            userAgent,
+            forHTTPHeaderField: "User-Agent"
+        )
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        return (data, response)
     }
 }
