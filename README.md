@@ -42,11 +42,13 @@ root/
 
 #### Run
 ```bash
+cd go-scraper
 go run main.go
 ```
 
 #### Run tests
 ```bash
+cd go-scraper
 go test ./...
 ```
 
@@ -57,11 +59,13 @@ go test ./...
 
 #### Run
 ```bash
+cd swift-scraper
 swift run
 ```
 
 #### Run tests
 ```bash
+cd swift-scraper
 swift test
 ```
 
