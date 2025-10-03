@@ -26,7 +26,7 @@ func main() {
 	}
 
 	if len(urls) == 0 {
-		fmt.Println("⚠️  No URLs configured.")
+		fmt.Println("⚠️ No URLs configured.")
 		fmt.Println("📄 Please add URLs to 'urls.json' before running the scraper.")
 		return
 	}
