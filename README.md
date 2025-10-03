@@ -1,4 +1,6 @@
 # WebScraper: Comparing Parallel Programming in Go and Swift
+[![Build & Test Swift](https://github.com/SimonLiebers-Dev/concepts-of-programming-languages/actions/workflows/swift.yml/badge.svg)](https://github.com/SimonLiebers-Dev/concepts-of-programming-languages/actions/workflows/swift.yml)
+[![Build & Test Go](https://github.com/SimonLiebers-Dev/concepts-of-programming-languages/actions/workflows/go.yml/badge.svg)](https://github.com/SimonLiebers-Dev/concepts-of-programming-languages/actions/workflows/go.yml)
 
 > This project was built as part of the course *Concepts of Programming Languages* at TH Rosenheim.
 
