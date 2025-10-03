@@ -17,6 +17,10 @@ let package = Package(
             dependencies: [
                 "SwiftSoup"
             ]
-        )
+        ),
+        .testTarget(
+            name: "swift-scraper-tests",
+            dependencies: ["swift-scraper"]
+        ),
     ]
 )
