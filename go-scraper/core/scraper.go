@@ -1,96 +1,82 @@
 package core
 
 import (
+	"context"
 	"fmt"
 	"go-scraper/models"
 	"io"
-	"net/http"
-	"strings"
 	"time"
-
-	"golang.org/x/net/html"
 )
 
-const UserAgent = "Mozilla/5.0 (iPad; U; CPU OS 4_3_2 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Mobile/8H7"
+// Scraper defines an interface for scraping a single page.
+type Scraper interface {
+	Scrape(ctx context.Context, url string) (*models.Page, error)
+}
 
-func Scrape(url string) (*models.Page, error) {
-	errorResult := &models.Page{
-		TimeStamp: time.Now(),
+// DefaultScraper is the default implementation that uses a Fetcher + HTML parser.
+type DefaultScraper struct {
+	Fetcher HTTPFetcher
+}
+
+// NewScraper creates a DefaultScraper with the provided HTTPFetcher.
+func NewScraper(fetcher HTTPFetcher) *DefaultScraper {
+	return &DefaultScraper{Fetcher: fetcher}
+}
+
+// Scrape fetches the page, parses its title and links, and returns a Page model.
+func (s *DefaultScraper) Scrape(ctx context.Context, url string) (*models.Page, error) {
+	startTime := time.Now()
+
+	// Defensive: ensure fetcher is initialized
+	if s.Fetcher == nil {
+		return &models.Page{
+			URL:       url,
+			Error:     "no fetcher configured",
+			TimeStamp: startTime,
+		}, fmt.Errorf("scraper misconfiguration: no fetcher provided")
 	}
 
-	client := &http.Client{}
-	req, createReqError := http.NewRequest("GET", url, nil)
-
-	if createReqError != nil {
-		errorResult.Error = "Failed to create request: " + createReqError.Error()
-    	return errorResult, fmt.Errorf("failed to create request: %w", createReqError)
-	}
-
-	req.Header.Set("User-Agent", UserAgent)
-	resp, err := client.Do(req)
-
+	body, err := s.Fetcher.Fetch(ctx, url)
 	if err != nil {
-		errorResult.Error = "Failed to fetch url: " + err.Error()
-		return errorResult, fmt.Errorf("failed to fetch URL %s: %w", url, err)
+		return &models.Page{
+			URL:       url,
+			Error:     fmt.Sprintf("fetch failed: %v", err),
+			TimeStamp: startTime,
+		}, fmt.Errorf("fetching %s: %w", url, err)
 	}
 
-	defer func() {
-		if closeError := resp.Body.Close(); closeError != nil {
-			fmt.Printf("⚠️ Warning: error closing response body from %s: %v\n", url, closeError)
-		}
-	}()
-
-	if resp.StatusCode != http.StatusOK {
-		errorResult.Error = "Status code " + resp.Status
-		return errorResult, fmt.Errorf("failed to fetch URL %s: status code %d", url, resp.StatusCode)
-	}
-
-	title, links, err := parseHtml(resp.Body)
+	title, links, err := ParseHTML(bytesToReader(body))
 	if err != nil {
-		errorResult.Error = "Failed to parse html: " + err.Error()
-		return errorResult, fmt.Errorf("failed to parse HTML from %s: %w", url, err)
+		return &models.Page{
+			URL:       url,
+			Error:     fmt.Sprintf("parse failed: %v", err),
+			TimeStamp: startTime,
+		}, fmt.Errorf("parsing %s: %w", url, err)
 	}
 
-	page := &models.Page{
+	return &models.Page{
 		URL:       url,
 		Title:     title,
 		Links:     links,
 		TimeStamp: time.Now(),
-	}
-	return page, nil
+	}, nil
 }
 
-func parseHtml(body io.Reader) (string, []string, error) {
-	doc, err := html.Parse(body)
-	if err != nil {
-		return "", nil, err
+// bytesToReader converts a byte slice into an io.Reader.
+func bytesToReader(b []byte) *readerWrapper {
+	return &readerWrapper{data: b}
+}
+
+type readerWrapper struct {
+	data []byte
+	pos  int
+}
+
+func (r *readerWrapper) Read(p []byte) (int, error) {
+	if r.pos >= len(r.data) {
+		return 0, io.EOF
 	}
-
-	var title string
-	var links []string
-
-	var f func(*html.Node)
-	f = func(n *html.Node) {
-		if n.Type == html.ElementNode {
-			if n.Data == "title" && n.FirstChild != nil {
-				title = n.FirstChild.Data
-			}
-			if n.Data == "a" {
-				for _, attr := range n.Attr {
-					if attr.Key == "href" && attr.Val != "" {
-						links = append(links, attr.Val)
-					}
-				}
-			}
-		}
-
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			f(c)
-		}
-	}
-
-	f(doc)
-
-	return strings.TrimSpace(title), links, nil
-
+	n := copy(p, r.data[r.pos:])
+	r.pos += n
+	return n, nil
 }

@@ -1,54 +1,53 @@
-package core
+package core_test
 
 import (
+	"context"
+	"errors"
+	"go-scraper/core"
 	"strings"
 	"testing"
 )
 
-func TestParseHtml_ValidHtml(t *testing.T) {
-	// Arrange
-	html := `
-		<html>
-			<head><title> Test Page </title></head>
-			<body>
-				<a href="https://example.com">Example</a>
-				<a href="/local">Local</a>
-				<a>No href</a>
-				<a href="">Empty href</a>
-			</body>
-		</html>
-	`
+// MockFetcher for testing
+type MockFetcher struct {
+	Response string
+	Err      error
+}
 
-	// Act
-	title, links, err := parseHtml(strings.NewReader(html))
+func (m *MockFetcher) Fetch(ctx context.Context, url string) ([]byte, error) {
+	if m.Err != nil {
+		return nil, m.Err
+	}
+	return []byte(m.Response), nil
+}
 
-	// Assert: Error should be nil
+func TestScraper_Scrape_Success(t *testing.T) {
+	html := `<html><head><title>Mock</title></head><body><a href="https://x.com"></a></body></html>`
+	s := core.NewScraper(&MockFetcher{Response: html})
+
+	page, err := s.Scrape(context.Background(), "https://example.com")
 	if err != nil {
-		t.Fatalf("Unexpected error: %v", err)
+		t.Fatalf("unexpected error: %v", err)
 	}
 
-	// Assert: Check title
-	expectedTitle := "Test Page"
-	if title != expectedTitle {
-		t.Errorf("Expected title '%s', got '%s'", expectedTitle, title)
+	if page.Title != "Mock" {
+		t.Errorf("expected title 'Mock', got '%s'", page.Title)
 	}
 
-	// Assert: Check links
-	expectedLinks := []string{"https://example.com", "/local"}
-	if len(links) != len(expectedLinks) {
-		t.Fatalf("Expected %d links, got %d", len(expectedLinks), len(links))
+	if len(page.Links) != 1 || page.Links[0] != "https://x.com" {
+		t.Errorf("unexpected links: %#v", page.Links)
 	}
+}
 
-	for _, want := range expectedLinks {
-		found := false
-		for _, got := range links {
-			if got == want {
-				found = true
-				break
-			}
-		}
-		if !found {
-			t.Errorf("Expected link %s not found", want)
-		}
+func TestScraper_Scrape_FetchError(t *testing.T) {
+	mockErr := errors.New("network down")
+	s := core.NewScraper(&MockFetcher{Err: mockErr})
+
+	page, err := s.Scrape(context.Background(), "https://example.com")
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !strings.Contains(page.Error, "fetch failed") {
+		t.Errorf("expected fetch error message, got: %s", page.Error)
 	}
 }

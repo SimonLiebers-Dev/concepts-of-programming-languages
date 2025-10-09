@@ -5,6 +5,7 @@ go 1.25
 require (
 	github.com/jedib0t/go-pretty/v6 v6.6.8
 	golang.org/x/net v0.44.0
+	golang.org/x/sync v0.17.0
 )
 
 require (

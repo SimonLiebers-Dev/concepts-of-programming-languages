@@ -1,94 +1,101 @@
 package core
 
 import (
+	"context"
+	"sync"
+
 	"go-scraper/models"
 	"go-scraper/ui"
 )
 
-// ScrapeSequential processes URLs one by one and shows progress.
-func ScrapeSequential(urls []string) []*models.Page {
-	// Create new progress bar manager
+// RunSequential scrapes URLs one by one and updates the UI progress.
+func RunSequential(ctx context.Context, urls []string, scraper Scraper) []*models.Page {
 	pbm := ui.NewProgressBarManager(len(urls))
-
-	// Ensure progress bar renderer stops on return
 	defer pbm.StopRenderer()
 
-	var results []*models.Page
+	results := make([]*models.Page, 0, len(urls))
 
-	// Sequentially run scraping for all urls
 	for _, url := range urls {
-		// Create new tracker
 		tracker := pbm.NewTracker(url, 2)
+		tracker.Increment(1) // started
 
-		// Increment by 1 -> Scraping has started
-		tracker.Increment(1)
-
-		// Scrape web page and parse content
-		page, err := Scrape(url)
-
-		// Update tracker to show error
+		page, err := scraper.Scrape(ctx, url)
 		if err != nil {
 			tracker.UpdateMessage("Error: " + err.Error())
 			tracker.MarkAsErrored()
 		}
 
-		// Append scraping result to list
 		results = append(results, page)
-
-		// Increment by 1 -> Scraping is finished
-		tracker.Increment(1)
+		tracker.Increment(1) // finished
 	}
 
-	// Return results
 	return results
 }
 
-// ScrapeParallel processes URLs in parallel and shows progress.
-func ScrapeParallel(urls []string) []*models.Page {
-	// Create new progress bar manager
-	pbm := ui.NewProgressBarManager(len(urls))
+// RunParallel scrapes URLs concurrently using a classic worker pool pattern.
+func RunParallel(ctx context.Context, urls []string, scraper Scraper, concurrency int) []*models.Page {
+	// Enforce minimal concurrency of 1
+	if concurrency <= 0 {
+		concurrency = 1
+	}
 
-	// Ensure progress bar renderer stops on return
+	pbm := ui.NewProgressBarManager(len(urls))
 	defer pbm.StopRenderer()
 
-	// Create channel for results
-	resultChannel := make(chan *models.Page)
+	jobs := make(chan int, len(urls))
+	results := make(chan *models.Page, len(urls))
 
-	// Create go routine for each url to be scraped
-	for _, url := range urls {
-		go func(u string) {
-			// Create new tracker
-			tracker := pbm.NewTracker(u, 2)
+	// Define worker
+	worker := func(id int, jobs <-chan int, results chan<- *models.Page) {
+		for i := range jobs {
+			select {
+			case <-ctx.Done():
+				return // stop early if canceled
+			default:
+				url := urls[i]
+				tracker := pbm.NewTracker(url, 2)
+				tracker.Increment(1)
 
-			// Increment by 1 -> Scraping has started
-			tracker.Increment(1)
+				page, err := scraper.Scrape(ctx, url)
+				if err != nil {
+					tracker.UpdateMessage("Error: " + err.Error())
+					tracker.MarkAsErrored()
+				}
 
-			// Scrape web page and parse content
-			page, err := Scrape(u)
+				tracker.Increment(1)
 
-			// Update tracker to show error
-			if err != nil {
-				tracker.UpdateMessage("Error: " + err.Error())
-				tracker.MarkAsErrored()
+				results <- page
 			}
-
-			// Increment by 1 -> Scraping is finished
-			tracker.Increment(1)
-
-			// Add result to channel
-			resultChannel <- page
-		}(url)
+		}
 	}
 
-	// Create list for results
-	results := make([]*models.Page, 0, len(urls))
-
-	// Collect results from channel
-	for i := 0; i < len(urls); i++ {
-		page := <-resultChannel
-		results = append(results, page)
+	// Start fixed number of workers
+	var wg sync.WaitGroup
+	for w := 1; w <= concurrency; w++ {
+		wg.Add(1)
+		go func(id int) {
+			defer wg.Done()
+			worker(id, jobs, results)
+		}(w)
 	}
 
-	// Return results
-	return results
+	// Send jobs
+	for i := range urls {
+		jobs <- i
+	}
+	close(jobs)
+
+	// Wait for workers and then close results
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
+	// Collect results
+	pages := make([]*models.Page, 0, len(urls))
+	for page := range results {
+		pages = append(pages, page)
+	}
+
+	return pages
 }
