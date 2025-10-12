@@ -18,7 +18,7 @@ jobs:
 
     - name: Build
       run: go build -v ./...
-      working-directory: ${{ github.workspace }}/go-scraper
+      working-directory: ${{ github.workspace }}/go
       
   test:
     runs-on: ubuntu-latest
@@ -34,4 +34,4 @@ jobs:
 
     - name: Test
       run: go test -v ./...
-      working-directory: ${{ github.workspace }}/go-scraper
+      working-directory: ${{ github.workspace }}/go

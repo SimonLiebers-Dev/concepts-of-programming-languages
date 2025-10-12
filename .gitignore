@@ -1,4 +1,6 @@
 /.idea
 .DS_Store
 /swift-scraper/.swiftpm
-/go-scraper/.idea
+.idea/
+bin/
+obj/
