@@ -24,10 +24,7 @@ jobs:
       run: dotnet restore
 
     - name: Build all projects
-      run: |
-        dotnet build WebScraper.Core/WebScraper.Core.csproj --no-restore --configuration Release
-        dotnet build WebScraper.Cli/WebScraper.Cli.csproj --no-restore --configuration Release
-        dotnet build WebScraper.Tests/WebScraper.Tests.csproj --no-restore --configuration Release
+      run: dotnet build
       
   test:
     runs-on: ubuntu-latest
@@ -49,4 +46,4 @@ jobs:
       run: dotnet restore
 
     - name: Test
-      run: dotnet test WebScraper.Tests/WebScraper.Tests.csproj --no-build --verbosity normal
+      run: dotnet test
