@@ -1,0 +1,52 @@
+name: Build & Test C#
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/csharp
+        
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build all projects
+      run: |
+        dotnet build WebScraper.Core/WebScraper.Core.csproj --no-restore --configuration Release
+        dotnet build WebScraper.Cli/WebScraper.Cli.csproj --no-restore --configuration Release
+        dotnet build WebScraper.Tests/WebScraper.Tests.csproj --no-restore --configuration Release
+      
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/csharp
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Test
+      run: dotnet test WebScraper.Tests/WebScraper.Tests.csproj --no-build --verbosity normal
