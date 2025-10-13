@@ -5,12 +5,12 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build-test:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ${{ github.workspace }}/csharp
-        
+
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
@@ -24,26 +24,7 @@ jobs:
       run: dotnet restore
 
     - name: Build all projects
-      run: dotnet build
-      
-  test:
-    runs-on: ubuntu-latest
-    needs: build
-    defaults:
-      run:
-        working-directory: ${{ github.workspace }}/csharp
-    
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      run: dotnet build --no-restore --configuration Release
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 9.0.x
-
-    - name: Restore dependencies
-      run: dotnet restore
-
-    - name: Test
-      run: dotnet test
+    - name: Run tests with coverage
+      run: dotnet test --no-build
