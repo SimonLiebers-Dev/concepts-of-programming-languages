@@ -8,10 +8,13 @@ internal static class Program
 {
     private static async Task Main(string[] args)
     {
-        var provider = ServiceProviderBuilder.CreateServiceProvider();
+        // Create service provider
+        var provider = ServiceProviderBuilder.CreateServiceProvider(enableLogging: false);
         
-        // Run the app
+        // Get application service
         var app = provider.GetRequiredService<Application>();
+        
+        // Run application
         await app.RunAsync();
     }
 }

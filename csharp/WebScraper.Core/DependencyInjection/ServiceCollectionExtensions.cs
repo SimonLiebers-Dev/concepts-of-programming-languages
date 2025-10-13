@@ -40,10 +40,10 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IScraper, DefaultWebScraper>();
         
         // Add web scraper
-        services.AddSingleton<IProgressBarManager, ProgressBarManager>();
+        services.AddTransient<IProgressBarManager, ProgressBarManager>();
         
         // Add scrape runner
-        services.AddSingleton<IScrapeRunner, DefaultScrapeRunner>();
+        services.AddTransient<IScrapeRunner, DefaultScrapeRunner>();
 
         return services;
     }

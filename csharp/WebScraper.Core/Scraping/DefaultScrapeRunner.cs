@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
+using WebScraper.Core.Extensions;
 using WebScraper.Core.Models;
 using WebScraper.Core.UI;
 
@@ -50,20 +51,17 @@ internal class DefaultScrapeRunner : IScrapeRunner
                 if (ct.IsCancellationRequested)
                     break;
 
-                var tracker = _progressBarManager.NewTracker(url, 2);
+                var tracker = _progressBarManager.CreateProgressBar(url, 2);
                 tracker.Increment(1); // started
 
-                Page page;
-                try
+                var page = await _scraper.ScrapeAsync(url, ct);
+                if (page.Success)
                 {
-                    page = await _scraper.ScrapeAsync(url, ct);
-                    tracker.Increment(1);
+                    tracker.MarkAsDone(url);
                 }
-                catch (Exception ex)
+                else
                 {
-                    tracker.Description($"Error: {ex.Message}");
-                    page = new Page(url, null, [], DateTimeOffset.UtcNow, ex.Message);
-                    _logger.LogError(ex, "Error scraping {Url}", url);
+                    tracker.MarkAsError(url);
                 }
 
                 results.Add(page);
@@ -89,6 +87,7 @@ internal class DefaultScrapeRunner : IScrapeRunner
         int concurrency,
         CancellationToken ct = default)
     {
+        _logger.LogInformation("Starting parallel scrape...");
         if (concurrency <= 0)
             concurrency = 1;
 
@@ -106,30 +105,23 @@ internal class DefaultScrapeRunner : IScrapeRunner
 
                 tasks.Add(Task.Run(async () =>
                 {
-                    var tracker = _progressBarManager.NewTracker(url, 2);
+                    var tracker = _progressBarManager.CreateProgressBar(url, 2);
                     tracker.Increment(1); // started
 
-                    try
+                    var page = await _scraper.ScrapeAsync(url, ct).ConfigureAwait(false);
+                    if (page.Success)
                     {
-                        var page = await _scraper.ScrapeAsync(url, ct).ConfigureAwait(false);
-                        lock (results)
-                            results.Add(page);
+                        tracker.MarkAsDone(url);
+                    }
+                    else
+                    {
+                        tracker.MarkAsError(url);
+                    }
 
-                        tracker.Increment(1);
-                    }
-                    catch (Exception ex)
-                    {
-                        tracker.Description($"Error: {ex.Message}");
-                        _logger.LogError(ex, "Error scraping {Url}", url);
+                    lock (results)
+                        results.Add(page);
 
-                        var failed = new Page(url, null, [], DateTimeOffset.UtcNow, ex.Message);
-                        lock (results)
-                            results.Add(failed);
-                    }
-                    finally
-                    {
-                        semaphore.Release();
-                    }
+                    semaphore.Release();
                 }, ct));
             }
 
@@ -140,9 +132,6 @@ internal class DefaultScrapeRunner : IScrapeRunner
         {
             await _progressBarManager.StopRendererAsync();
         }
-
-        // ✅ Only dispose after all tasks are done (outside try/finally)
-        semaphore.Dispose();
 
         return results;
     }

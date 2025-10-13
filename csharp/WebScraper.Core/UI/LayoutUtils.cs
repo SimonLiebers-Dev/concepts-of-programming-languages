@@ -1,7 +1,19 @@
 namespace WebScraper.Core.UI;
 
+/// <summary>
+/// Provides utility methods for rendering consistent visual elements in the CLI output,
+/// such as headers and separator lines.
+/// </summary>
+/// <remarks>
+/// The <see cref="LayoutUtils"/> class is responsible for maintaining a consistent
+/// visual style across the console interface of the web scraper.  
+/// It displays an ASCII art header, tool metadata, and formatted separators to improve readability.
+/// </remarks>
 public static class LayoutUtils
 {
+    /// <summary>
+    /// The ASCII banner displayed at application startup.
+    /// </summary>
     private const string AsciiHeader = """
                                        __          __  _     _____                                
                                        \ \        / / | |   / ____|                               
@@ -13,6 +25,9 @@ public static class LayoutUtils
                                                                                  |_|               
                                        """;
 
+    /// <summary>
+    /// Informational lines displayed below the ASCII header.
+    /// </summary>
     private static readonly string[] InfoLines =
     [
         "📦  Parallel Web Scraper (CLI Tool)",
@@ -22,8 +37,12 @@ public static class LayoutUtils
     ];
 
     /// <summary>
-    /// Renders the ASCII header and metadata.
+    /// Prints the ASCII header and basic tool information to the console.
     /// </summary>
+    /// <remarks>
+    /// This method sets the console text color to cyan while rendering the ASCII header,
+    /// then resets it before printing additional metadata such as the project name and author.
+    /// </remarks>
     public static void PrintHeader()
     {
         Console.ForegroundColor = ConsoleColor.Cyan;
@@ -35,8 +54,15 @@ public static class LayoutUtils
     }
 
     /// <summary>
-    /// Prints a horizontal separator line across the console width (default 100).
+    /// Prints a horizontal separator line across the console.
     /// </summary>
+    /// <param name="width">
+    /// The width of the separator line, measured in characters.  
+    /// Defaults to <c>100</c>.
+    /// </param>
+    /// <remarks>
+    /// Useful for visually separating sections of console output.
+    /// </remarks>
     public static void PrintSeparator(int width = 100)
     {
         var line = string.Concat(Enumerable.Repeat('─', width));

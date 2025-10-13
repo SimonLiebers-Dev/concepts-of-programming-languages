@@ -59,36 +59,49 @@ public static class FileUtils
     }
 
     /// <summary>
-    /// Saves the given pages to a timestamped JSON file in the current directory.
+    /// Saves the given pages to a timestamped JSON file in the specified output directory.
     /// </summary>
     /// <param name="pages">The list of scraped pages to save.</param>
+    /// <param name="outputDirectory">
+    /// The directory where the file should be saved.  
+    /// If the directory does not exist, it will be created automatically.
+    /// </param>
     /// <param name="timestamp">
     /// Optional timestamp used for deterministic output (useful for testing).  
     /// If <see langword="null"/>, <see cref="DateTimeOffset.UtcNow"/> will be used.
     /// </param>
-    /// <returns>The name of the file that was created.</returns>
+    /// <returns>
+    /// The full path to the file that was created, e.g. <c>results/scrape-results-1234567890.json</c>.
+    /// </returns>
     /// <exception cref="ArgumentException">Thrown when <paramref name="pages"/> is empty.</exception>
     /// <exception cref="IOException">Thrown when the file cannot be written.</exception>
-    public static async Task<string> SaveResultsToFileAsync(IEnumerable<Page> pages, DateTimeOffset? timestamp = null)
+    public static async Task<string> SaveResultsToFileAsync(
+        IEnumerable<Page> pages,
+        string outputDirectory,
+        DateTimeOffset timestamp)
     {
+        ArgumentException.ThrowIfNullOrEmpty(outputDirectory);
         var pageList = pages.ToList();
 
         if (pageList.Count == 0)
             throw new ArgumentException("No pages to save.", nameof(pages));
 
-        var millis = timestamp?.ToUnixTimeMilliseconds() ?? DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        // Ensure directory exists
+        Directory.CreateDirectory(outputDirectory);
+
+        var millis = timestamp.ToUnixTimeMilliseconds();
         var filename = $"scrape-results-{millis}.json";
+        var filePath = Path.Combine(outputDirectory, filename);
 
         try
         {
             var json = JsonSerializer.Serialize(pageList, _jsonSerializerOptions);
-
-            await File.WriteAllTextAsync(filename, json).ConfigureAwait(false);
-            return filename;
+            await File.WriteAllTextAsync(filePath, json).ConfigureAwait(false);
+            return filePath;
         }
         catch (Exception ex)
         {
-            throw new IOException($"Could not write file {filename}: {ex.Message}", ex);
+            throw new IOException($"Could not write file {filePath}: {ex.Message}", ex);
         }
     }
 }

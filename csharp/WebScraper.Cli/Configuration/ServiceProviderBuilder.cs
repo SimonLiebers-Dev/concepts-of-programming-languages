@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using WebScraper.Cli.App;
@@ -22,7 +23,7 @@ public static class ServiceProviderBuilder
     /// <remarks>
     /// The returned service provider includes:
     /// <list type="bullet">
-    /// <item><description>Console logging via <see cref="Microsoft.Extensions.Logging"/></description></item>
+    /// <item><description>Logging via <see cref="Microsoft.Extensions.Logging"/></description></item>
     /// <item><description>Core scraper services registered through <c>AddWebScraperCore</c></description></item>
     /// <item><description>The main <see cref="Application"/> class registered as a transient</description></item>
     /// </list>
@@ -33,8 +34,17 @@ public static class ServiceProviderBuilder
     /// </returns>
     public static IServiceProvider CreateServiceProvider(bool enableLogging = false)
     {
+        // Create configuration builder
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            .Build();
+
         // Set up DI container
         ServiceCollection services = new();
+
+        // Register configuration
+        services.AddSingleton<IConfiguration>(configuration);
 
         // Register logging provider if enableLogging is true
         if (enableLogging)
@@ -52,7 +62,7 @@ public static class ServiceProviderBuilder
         // Add web scraper core with configured httpClient timeout
         services.AddWebScraperCore(configureHttpClient: client => { client.Timeout = TimeSpan.FromSeconds(10); });
 
-        // Register main application class
+        // Register main application
         services.AddTransient<Application>();
 
         // Build and return the provider

@@ -1,5 +1,7 @@
 using System.Diagnostics;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
+using WebScraper.Cli.Configuration;
+using WebScraper.Cli.Extensions;
 using WebScraper.Core.Models;
 using WebScraper.Core.Scraping;
 using WebScraper.Core.UI;
@@ -12,38 +14,62 @@ namespace WebScraper.Cli.App;
 /// Handles user interaction, orchestrates scraping, prints summaries,
 /// and optionally persists the results.
 /// </summary>
-public sealed class Application
+internal class Application
 {
-    private readonly ILogger<Application> _logger;
+    private readonly IConfiguration _configuration;
     private readonly IScrapeRunner _runner;
 
-    public Application(ILogger<Application> logger, IScrapeRunner runner)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Application"/> class.
+    /// </summary>
+    /// <param name="configuration">The configuration provider for application settings.</param>
+    /// <param name="runner">The runner that performs sequential or parallel scraping operations.</param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when any dependency is <see langword="null"/>.
+    /// </exception>
+    public Application(IConfiguration configuration, IScrapeRunner runner)
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         _runner = runner ?? throw new ArgumentNullException(nameof(runner));
     }
 
     /// <summary>
-    /// Executes the main interactive scraper workflow.
+    /// Executes the main interactive workflow for the scraper CLI.
     /// </summary>
-    /// <param name="ct">A cancellation token for graceful termination.</param>
+    /// <remarks>
+    /// This method:
+    /// <list type="bullet">
+    /// <item><description>Displays the ASCII header and general metadata.</description></item>
+    /// <item><description>Loads or initializes the URL configuration file.</description></item>
+    /// <item><description>Prompts the user to choose between sequential or parallel scraping modes.</description></item>
+    /// <item><description>Runs the scraper and tracks progress in the console.</description></item>
+    /// <item><description>Prints a summary and optionally saves the results to a JSON file.</description></item>
+    /// </list>
+    /// </remarks>
+    /// <param name="ct">A cancellation token that can be used to terminate the operation gracefully.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task RunAsync(CancellationToken ct = default)
     {
         LayoutUtils.PrintHeader();
         LayoutUtils.PrintSeparator();
 
-        const string urlsFile = "urls.json";
-
-        // Read URLs or create empty file
-        var urls = await FileUtils.GetUrlsFromFileAsync(urlsFile).ConfigureAwait(false);
-        if (urls.Count == 0)
+        // Try read config from configuration
+        if (!_configuration.TryGetScrapeConfig(out var config, out var error))
         {
-            Console.WriteLine("⚠️  No URLs configured.");
-            Console.WriteLine("📄  Please add URLs to 'urls.json' before running the scraper.");
+            Console.WriteLine(error);
             return;
         }
 
-        Console.WriteLine($"Loaded {urls.Count} URLs from {urlsFile}");
+        // Read URLs or create empty file
+        var urls = await FileUtils.GetUrlsFromFileAsync(config.UrlsFile).ConfigureAwait(false);
+        if (urls.Count == 0)
+        {
+            Console.WriteLine("⚠️  No URLs configured.");
+            Console.WriteLine($"📄  Please add URLs to '{config.UrlsFile}' before running the scraper.");
+            return;
+        }
+
+        Console.WriteLine($"Loaded {urls.Count} URLs from {config.UrlsFile}");
         LayoutUtils.PrintSeparator();
 
         var choice = PromptMode();
@@ -52,13 +78,13 @@ public sealed class Application
         var stopwatch = Stopwatch.StartNew();
         var results = choice == 1
             ? await RunSequentialAsync(urls, ct)
-            : await RunParallelAsync(urls, ct);
+            : await RunParallelAsync(urls, config, ct);
         stopwatch.Stop();
 
         PrintSummary(results, stopwatch.Elapsed);
         LayoutUtils.PrintSeparator();
 
-        await PromptSaveResultsAsync(results).ConfigureAwait(false);
+        await PromptSaveResultsAsync(results, config).ConfigureAwait(false);
     }
 
     private static int PromptMode()
@@ -71,7 +97,7 @@ public sealed class Application
             LayoutUtils.PrintSeparator();
 
             var input = Console.ReadLine()?.Trim();
-            if (int.TryParse(input, out var parsed) && (parsed == 1 || parsed == 2))
+            if (int.TryParse(input, out var parsed) && parsed is 1 or 2)
                 return parsed;
 
             LayoutUtils.PrintSeparator();
@@ -87,21 +113,22 @@ public sealed class Application
         return await _runner.RunSequentialAsync(urls, ct).ConfigureAwait(false);
     }
 
-    private async Task<IReadOnlyList<Page>> RunParallelAsync(IReadOnlyList<string> urls, CancellationToken ct)
+    private async Task<IReadOnlyList<Page>> RunParallelAsync(IReadOnlyList<string> urls, ScrapeConfig config,
+        CancellationToken ct)
     {
         Console.WriteLine("🚀 Running parallel scraper...");
         LayoutUtils.PrintSeparator();
-        return await _runner.RunParallelAsync(urls, concurrency: 5, ct).ConfigureAwait(false);
+        return await _runner.RunParallelAsync(urls, config.Concurrency, ct).ConfigureAwait(false);
     }
 
     private static void PrintSummary(IReadOnlyList<Page> pages, TimeSpan duration)
     {
-        var success = pages.Count(p => p.Success);
-        var failed = pages.Count(p => p.HasError);
-        Console.WriteLine($"✅ {success} successful | ❌ {failed} failed | ⏱️ Duration: {duration}");
+        var successCount = pages.Count(p => p.Success);
+        var failedCount = pages.Count - successCount;
+        Console.WriteLine($"✅ {successCount} successful | ❌ {failedCount} failed | ⏱️ Duration: {duration}");
     }
 
-    private static async Task PromptSaveResultsAsync(IReadOnlyList<Page> pages)
+    private static async Task PromptSaveResultsAsync(IReadOnlyList<Page> pages, ScrapeConfig config)
     {
         while (true)
         {
@@ -113,7 +140,9 @@ public sealed class Application
                 case "y":
                     try
                     {
-                        var filename = await FileUtils.SaveResultsToFileAsync(pages).ConfigureAwait(false);
+                        var filename = await FileUtils
+                            .SaveResultsToFileAsync(pages, config.ResultsDirectory, DateTimeOffset.UtcNow)
+                            .ConfigureAwait(false);
                         Console.WriteLine($"✅ Results saved to: {filename}");
                     }
                     catch (Exception ex)
