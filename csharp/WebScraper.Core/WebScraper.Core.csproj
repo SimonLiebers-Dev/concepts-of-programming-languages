@@ -8,10 +8,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="AngleSharp" Version="1.3.0" />
-      <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.9" />
-      <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9" />
-      <PackageReference Include="Spectre.Console" Version="0.52.0" />
+        <PackageReference Include="AngleSharp" Version="1.3.0"/>
+        <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.9"/>
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9"/>
+        <PackageReference Include="Spectre.Console" Version="0.52.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>WebScraper.Core.Tests</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>DynamicProxyGenAssembly2</_Parameter1>
+        </AssemblyAttribute>
     </ItemGroup>
 
 </Project>

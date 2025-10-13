@@ -4,7 +4,6 @@ using WebScraper.Cli.Configuration;
 using WebScraper.Cli.Extensions;
 using WebScraper.Core.Models;
 using WebScraper.Core.Scraping;
-using WebScraper.Core.UI;
 using WebScraper.Core.Util;
 
 namespace WebScraper.Cli.App;
