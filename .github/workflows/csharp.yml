@@ -3,6 +3,8 @@ name: Build & Test C#
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'csharp/**'
 
 jobs:
   build-test:
@@ -23,8 +25,8 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Build all projects
+    - name: Build
       run: dotnet build --no-restore
 
-    - name: Run tests with coverage
+    - name: Run Tests
       run: dotnet test
