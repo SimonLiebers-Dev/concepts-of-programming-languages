@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebScraper.Cli", "WebScrape
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebScraper.Core.Tests", "WebScraper.Core.Tests\WebScraper.Core.Tests.csproj", "{9C6C5141-5BEF-4EF6-B616-F54E96802D3E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebScraper.Cli.Tests", "WebScraper.Cli.Tests\WebScraper.Cli.Tests.csproj", "{F2683DB9-2342-4BC2-B8A2-64F8F2CDBFE2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{9C6C5141-5BEF-4EF6-B616-F54E96802D3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C6C5141-5BEF-4EF6-B616-F54E96802D3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C6C5141-5BEF-4EF6-B616-F54E96802D3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2683DB9-2342-4BC2-B8A2-64F8F2CDBFE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2683DB9-2342-4BC2-B8A2-64F8F2CDBFE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2683DB9-2342-4BC2-B8A2-64F8F2CDBFE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2683DB9-2342-4BC2-B8A2-64F8F2CDBFE2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

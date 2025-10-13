@@ -8,12 +8,8 @@ using WebScraper.Core.Util;
 
 namespace WebScraper.Cli.App;
 
-/// <summary>
-/// Represents the top-level application entry point.
-/// Handles user interaction, orchestrates scraping, prints summaries,
-/// and optionally persists the results.
-/// </summary>
-internal class Application
+/// <inheritdoc cref="IApplication"/>
+internal class Application : IApplication
 {
     private readonly IConfiguration _configuration;
     private readonly IScrapeRunner _runner;
@@ -32,21 +28,7 @@ internal class Application
         _runner = runner ?? throw new ArgumentNullException(nameof(runner));
     }
 
-    /// <summary>
-    /// Executes the main interactive workflow for the scraper CLI.
-    /// </summary>
-    /// <remarks>
-    /// This method:
-    /// <list type="bullet">
-    /// <item><description>Displays the ASCII header and general metadata.</description></item>
-    /// <item><description>Loads or initializes the URL configuration file.</description></item>
-    /// <item><description>Prompts the user to choose between sequential or parallel scraping modes.</description></item>
-    /// <item><description>Runs the scraper and tracks progress in the console.</description></item>
-    /// <item><description>Prints a summary and optionally saves the results to a JSON file.</description></item>
-    /// </list>
-    /// </remarks>
-    /// <param name="ct">A cancellation token that can be used to terminate the operation gracefully.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    /// <inheritdoc cref="IApplication"/>
     public async Task RunAsync(CancellationToken ct = default)
     {
         LayoutUtils.PrintHeader();

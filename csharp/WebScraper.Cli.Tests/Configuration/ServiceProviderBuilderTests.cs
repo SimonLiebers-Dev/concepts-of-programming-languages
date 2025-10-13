@@ -1,0 +1,103 @@
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using WebScraper.Cli.App;
+using WebScraper.Cli.Configuration;
+using WebScraper.Core.Fetcher;
+using WebScraper.Core.Parser;
+using WebScraper.Core.Scraping;
+using WebScraper.Core.UI;
+
+namespace WebScraper.Cli.Tests.Configuration;
+
+[TestFixture]
+public class ServiceProviderBuilderTests
+{
+    [Test]
+    public void CreateServiceProvider_ShouldReturnValidProvider()
+    {
+        // Act
+        var provider = ServiceProviderBuilder.CreateServiceProvider();
+
+        // Assert
+        Assert.That(provider, Is.Not.Null, "Provider should not be null");
+
+        var config = provider.GetService<IConfiguration>();
+        Assert.Multiple(() =>
+        {
+            // Verify configuration is registered
+            Assert.That(config, Is.Not.Null, "IConfiguration should be registered");
+
+            // Verify scraper core services
+            Assert.That(provider.GetService<IHtmlFetcher>(), Is.Not.Null);
+            Assert.That(provider.GetService<IHtmlParser>(), Is.Not.Null);
+            Assert.That(provider.GetService<IScraper>(), Is.Not.Null);
+            Assert.That(provider.GetService<IProgressBarManager>(), Is.Not.Null);
+            Assert.That(provider.GetService<IScrapeRunner>(), Is.Not.Null);
+
+            // Verify main Application is registered
+            Assert.That(provider.GetService<IApplication>(), Is.Not.Null);
+        });
+    }
+
+    [Test]
+    public void CreateServiceProvider_ShouldResolveAllDependenciesForApplication()
+    {
+        // Arrange
+        var provider = ServiceProviderBuilder.CreateServiceProvider();
+
+        // Act + Assert
+        var app = provider.GetRequiredService<IApplication>();
+        Assert.That(app, Is.Not.Null, "Application should be resolvable from DI");
+    }
+
+    [Test]
+    public void CreateServiceProvider_ShouldIncludeLogging_WhenEnabled()
+    {
+        // Act
+        var provider = ServiceProviderBuilder.CreateServiceProvider(enableLogging: true);
+
+        // Assert
+        var loggerFactory = provider.GetService<ILoggerFactory>();
+        Assert.That(loggerFactory, Is.Not.Null, "ILoggerFactory should be registered when logging is enabled");
+
+        var logger = loggerFactory!.CreateLogger<ServiceProviderBuilderTests>();
+        Assert.DoesNotThrow(() => logger.LogInformation("Logging works!"));
+    }
+
+    [Test]
+    public void CreateServiceProvider_ShouldRegisterConfiguredHttpClient()
+    {
+        // Arrange
+        var provider = ServiceProviderBuilder.CreateServiceProvider();
+        var factory = provider.GetRequiredService<IHttpClientFactory>();
+
+        // Act
+        var client = factory.CreateClient(nameof(IHtmlFetcher));
+
+        // Assert
+        Assert.That(client.Timeout, Is.EqualTo(TimeSpan.FromSeconds(10)),
+            "HttpClient should have a 10-second timeout configured.");
+    }
+
+    [Test]
+    public void CreateServiceProvider_ShouldBuildProviderWithoutThrowing()
+    {
+        // Act + Assert
+        Assert.DoesNotThrow(() => ServiceProviderBuilder.CreateServiceProvider());
+    }
+
+    [Test]
+    public void CreateServiceProvider_ShouldReturnNewInstances()
+    {
+        // Arrange
+        var provider = ServiceProviderBuilder.CreateServiceProvider();
+
+        // Act
+        var scraper1 = provider.GetRequiredService<IScraper>();
+        var scraper2 = provider.GetRequiredService<IScraper>();
+
+        // Assert
+        Assert.That(scraper1, Is.Not.SameAs(scraper2), "IScraper should be transient.");
+    }
+}

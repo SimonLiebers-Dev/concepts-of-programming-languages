@@ -63,7 +63,7 @@ public static class ServiceProviderBuilder
         services.AddWebScraperCore(configureHttpClient: client => { client.Timeout = TimeSpan.FromSeconds(10); });
 
         // Register main application
-        services.AddTransient<Application>();
+        services.AddTransient<IApplication, Application>();
 
         // Build and return the provider
         return services.BuildServiceProvider();
