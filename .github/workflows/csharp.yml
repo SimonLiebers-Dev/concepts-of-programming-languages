@@ -5,6 +5,7 @@ on:
     branches: [ "main" ]
     paths:
       - 'csharp/**'
+      - '.github/**'
 
 jobs:
   build-test:

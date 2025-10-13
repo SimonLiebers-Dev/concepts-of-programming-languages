@@ -5,9 +5,10 @@ on:
     branches: [ "main" ]
     paths:
       - 'go/**'
+      - '.github/**'
 
 jobs:
-  build-and-test:
+  build-test:
     runs-on: ubuntu-latest
     defaults:
       run:
