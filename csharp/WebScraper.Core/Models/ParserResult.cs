@@ -5,4 +5,5 @@ namespace WebScraper.Core.Models;
 /// </summary>
 public sealed record ParserResult(
     string Title,
-    string[] Links);
+    string[] Links,
+    string[] Images);

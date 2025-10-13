@@ -14,6 +14,7 @@ public record Page(
     [property: JsonPropertyName("url")] string Url,
     [property: JsonPropertyName("title")] string? Title,
     [property: JsonPropertyName("links")] IReadOnlyList<string> Links,
+    [property: JsonPropertyName("images")] IReadOnlyList<string> Images,
     [property: JsonPropertyName("timestamp")]
     DateTimeOffset Timestamp,
     [property: JsonPropertyName("success")]
@@ -27,13 +28,16 @@ public record Page(
     /// <param name="url">The URL of the successfully scraped page.</param>
     /// <param name="title">The extracted HTML title of the page.</param>
     /// <param name="links">An optional collection of hyperlinks found on the page.</param>
+    /// <param name="images">An optional collection of images found on the page.</param>
     /// <param name="timestamp">
     /// The time the page was scraped.  
     /// </param>
     /// <returns>A <see cref="Page"/> instance with <see cref="Success"/> set to <see langword="true"/>.</returns>
     public static Page SuccessPage(string url, string? title, IEnumerable<string>? links = null,
+        IEnumerable<string>? images = null,
         DateTimeOffset? timestamp = null)
-        => new(url, title, links?.ToArray() ?? [], timestamp ?? DateTimeOffset.UtcNow, true, null);
+        => new(url, title, links?.ToArray() ?? [], images?.ToArray() ?? [], timestamp ?? DateTimeOffset.UtcNow, true,
+            null);
 
     /// <summary>
     /// Creates a new <see cref="Page"/> instance representing a failed scrape.
@@ -45,5 +49,5 @@ public record Page(
     /// </param>
     /// <returns>A <see cref="Page"/> instance with <see cref="Success"/> set to <see langword="false"/>.</returns>
     public static Page ErrorPage(string url, string error, DateTimeOffset? timestamp = null)
-        => new(url, null, [], timestamp ?? DateTimeOffset.UtcNow, false, error);
+        => new(url, null, [], [], timestamp ?? DateTimeOffset.UtcNow, false, error);
 }

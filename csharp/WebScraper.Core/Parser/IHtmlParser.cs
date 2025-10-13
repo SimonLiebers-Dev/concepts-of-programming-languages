@@ -25,6 +25,6 @@ public interface IHtmlParser
     /// Parses HTML content from a <see cref="string"/> and returns a <see cref="ParserResult"/>.
     /// </summary>
     /// <param name="html">The HTML content as a string.</param>
-    /// <returns>The parsed result containing the page title and discovered links.</returns>
+    /// <returns>The parsed result containing the page title, discovered links and images</returns>
     ParserResult Parse(string html);
 }

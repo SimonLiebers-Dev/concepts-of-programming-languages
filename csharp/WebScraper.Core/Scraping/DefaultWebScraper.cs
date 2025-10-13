@@ -39,6 +39,7 @@ internal class DefaultWebScraper : IScraper
                 url: url,
                 title: result.Title,
                 links: result.Links,
+                images: result.Images,
                 timestamp: DateTimeOffset.UtcNow);
         }
         catch (Exception ex)

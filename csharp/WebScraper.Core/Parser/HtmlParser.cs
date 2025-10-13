@@ -6,7 +6,7 @@ namespace WebScraper.Core.Parser;
 internal class HtmlParser : IHtmlParser
 {
     private readonly AngleSharp.Html.Parser.HtmlParser _parser;
-    
+
     /// <summary>
     /// Initializes a new instance of the <see cref="HtmlParser"/> class
     /// used to parse HTML documents.
@@ -15,7 +15,7 @@ internal class HtmlParser : IHtmlParser
     {
         _parser = new AngleSharp.Html.Parser.HtmlParser();
     }
-    
+
     /// <inheritdoc />
     public async Task<ParserResult> ParseAsync(Stream htmlStream, CancellationToken ct = default)
     {
@@ -35,7 +35,13 @@ internal class HtmlParser : IHtmlParser
             .Where(href => !string.IsNullOrWhiteSpace(href))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();
-        
-        return new ParserResult(title, links);
+        var images = doc.QuerySelectorAll("img[src]")
+            .Select(a => a.GetAttribute("src"))
+            .OfType<string>()
+            .Where(src => !string.IsNullOrWhiteSpace(src))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        return new ParserResult(title, links, images);
     }
 }
