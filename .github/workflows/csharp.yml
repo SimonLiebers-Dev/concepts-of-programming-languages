@@ -24,7 +24,7 @@ jobs:
       run: dotnet restore
 
     - name: Build all projects
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet build --no-restore
 
     - name: Run tests with coverage
-      run: dotnet test --no-build
+      run: dotnet test
