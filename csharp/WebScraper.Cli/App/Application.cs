@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using WebScraper.Cli.Configuration;
 using WebScraper.Cli.Extensions;
+using WebScraper.Core.Fetcher;
 using WebScraper.Core.Models;
 using WebScraper.Core.Scraping;
 using WebScraper.Core.Util;
@@ -12,6 +13,7 @@ namespace WebScraper.Cli.App;
 internal class Application : IApplication
 {
     private readonly IConfiguration _configuration;
+    private readonly IHtmlFetcher _fetcher;
     private readonly IScrapeRunner _runner;
 
     /// <summary>
@@ -19,12 +21,14 @@ internal class Application : IApplication
     /// </summary>
     /// <param name="configuration">The configuration provider for application settings.</param>
     /// <param name="runner">The runner that performs sequential or parallel scraping operations.</param>
+    /// <param name="fetcher">The fetcher that performs requests to target URLs.</param>
     /// <exception cref="ArgumentNullException">
     /// Thrown when any dependency is <see langword="null"/>.
     /// </exception>
-    public Application(IConfiguration configuration, IScrapeRunner runner)
+    public Application(IConfiguration configuration, IHtmlFetcher fetcher, IScrapeRunner runner)
     {
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        _fetcher = fetcher ?? throw new ArgumentNullException(nameof(fetcher));
         _runner = runner ?? throw new ArgumentNullException(nameof(runner));
     }
 
@@ -41,6 +45,10 @@ internal class Application : IApplication
             return;
         }
 
+        // Apply config to fetcher
+        _fetcher.SetHttpTimeout(config.HttpTimeoutSeconds);
+        _fetcher.SetUserAgent(config.UserAgent);
+
         // Read URLs or create empty file
         var urls = await FileUtils.GetUrlsFromFileAsync(config.UrlsFile).ConfigureAwait(false);
         if (urls.Count == 0)
@@ -50,7 +58,9 @@ internal class Application : IApplication
             return;
         }
 
-        Console.WriteLine($"Loaded {urls.Count} URLs from {config.UrlsFile}");
+        // Print config
+        PrintConfig(config, urls.Count);
+
         LayoutUtils.PrintSeparator();
 
         var choice = PromptMode();
@@ -85,6 +95,15 @@ internal class Application : IApplication
             Console.WriteLine("❌ Invalid input. Please enter 1 or 2.");
             LayoutUtils.PrintSeparator();
         }
+    }
+
+    private static void PrintConfig(ScrapeConfig config, int urlCount)
+    {
+        Console.WriteLine($"📄  URLs File: {config.UrlsFile} ({urlCount} urls loaded)");
+        Console.WriteLine($"💾  Results Directory: {config.ResultsDirectory}/");
+        Console.WriteLine($"⚙️  Concurrency: {config.Concurrency}");
+        Console.WriteLine($"⏱️  HTTP Timeout (s): {config.HttpTimeoutSeconds}");
+        Console.WriteLine($"🕸️  User-Agent: {config.UserAgent[..Math.Min(config.UserAgent.Length, 80)]}...");
     }
 
     private async Task<IReadOnlyList<Page>> RunSequentialAsync(IReadOnlyList<string> urls, CancellationToken ct)

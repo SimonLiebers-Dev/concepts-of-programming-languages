@@ -17,7 +17,19 @@ public interface IHtmlFetcher
     /// If <see langword="null"/> or empty, implementations may revert to a default user agent.
     /// </param>
     void SetUserAgent(string userAgent);
-    
+
+    /// <summary>
+    /// Sets the HTTP request timeout for the internal <see cref="HttpClient"/> instance.
+    /// </summary>
+    /// <param name="httpTimeoutSeconds">
+    /// The timeout duration, in seconds, after which an ongoing HTTP request will be aborted.
+    /// </param>
+    /// <remarks>
+    /// This method allows the scraper to dynamically adjust its timeout behavior at runtime,
+    /// for example based on configuration values loaded from <c>appsettings.json</c>.
+    /// </remarks>
+    void SetHttpTimeout(int httpTimeoutSeconds);
+
     /// <summary>
     /// Performs an asynchronous HTTP GET request for the specified URL and returns the response body as a string.
     /// </summary>

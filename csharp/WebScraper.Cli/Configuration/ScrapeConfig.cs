@@ -26,6 +26,11 @@ internal class ScrapeConfig
     public int HttpTimeoutSeconds { get; init; }
 
     /// <summary>
+    /// User Agent used by the fetcher.
+    /// </summary>
+    public string UserAgent { get; init; } = string.Empty;
+
+    /// <summary>
     /// Validates that all configuration values are set and valid.
     /// </summary>
     /// <exception cref="InvalidOperationException">
@@ -48,5 +53,9 @@ internal class ScrapeConfig
         // Throw exception if http timeout is not configured and not bigger than 0
         if (HttpTimeoutSeconds <= 0)
             throw new InvalidOperationException("Scraper:HttpTimeoutSeconds must be greater than zero.");
+        
+        // Throw exception if user agent is not configured
+        if (string.IsNullOrWhiteSpace(UserAgent))
+            throw new InvalidOperationException("Missing required configuration: Scraper:UserAgent");
     }
 }

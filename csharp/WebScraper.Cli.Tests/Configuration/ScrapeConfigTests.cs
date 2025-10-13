@@ -90,7 +90,8 @@ public class ScrapeConfigTests
             UrlsFile = "urls.json",
             ResultsDirectory = "results",
             Concurrency = 4,
-            HttpTimeoutSeconds = 15
+            HttpTimeoutSeconds = 15,
+            UserAgent = "UserAgent"
         };
 
         // Act + Assert
@@ -107,7 +108,8 @@ public class ScrapeConfigTests
             UrlsFile = value ?? "",
             ResultsDirectory = "results",
             Concurrency = 2,
-            HttpTimeoutSeconds = 5
+            HttpTimeoutSeconds = 5,
+            UserAgent = "User Agent"
         };
 
         // Act + Assert

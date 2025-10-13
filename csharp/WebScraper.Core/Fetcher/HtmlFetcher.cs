@@ -30,6 +30,17 @@ internal class HtmlFetcher(HttpClient httpClient, ILogger<HtmlFetcher> logger) :
     }
 
     /// <inheritdoc />
+    public void SetHttpTimeout(int httpTimeoutSeconds)
+    {
+        // Fallback to 30 seconds if value is not bigger than 0
+        if (httpTimeoutSeconds <= 0)
+            httpTimeoutSeconds = 30;
+
+        httpClient.Timeout = TimeSpan.FromSeconds(httpTimeoutSeconds);
+        logger.LogInformation("HTTP timeout set to {TimeoutSeconds} seconds.", httpTimeoutSeconds);
+    }
+
+    /// <inheritdoc />
     public async Task<string> FetchAsync(string url, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(url))

@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using WebScraper.Cli.App;
+using WebScraper.Core.Fetcher;
 using WebScraper.Core.Models;
 using WebScraper.Core.Scraping;
 
@@ -11,6 +12,7 @@ namespace WebScraper.Cli.Tests.App;
 public class ApplicationTests
 {
     private Mock<IConfiguration> _configMock = null!;
+    private Mock<IHtmlFetcher> _fetcherMock = null!;
     private Mock<IScrapeRunner> _runnerMock = null!;
     private StringBuilder _consoleOutput = null!;
     private StringWriter _writer = null!;
@@ -21,6 +23,7 @@ public class ApplicationTests
     public void SetUp()
     {
         _configMock = new Mock<IConfiguration>();
+        _fetcherMock = new Mock<IHtmlFetcher>();
         _runnerMock = new Mock<IScrapeRunner>();
 
         _consoleOutput = new StringBuilder();
@@ -35,7 +38,7 @@ public class ApplicationTests
     {
         // Arrange
         var configuration = new ConfigurationBuilder().AddInMemoryCollection().Build();
-        var app = new Application(configuration, _runnerMock.Object);
+        var app = new Application(configuration, _fetcherMock.Object, _runnerMock.Object);
 
         // Act
         await app.RunAsync();
@@ -58,11 +61,12 @@ public class ApplicationTests
                 ["Scraper:UrlsFile"] = tempFile,
                 ["Scraper:ResultsDirectory"] = Path.GetTempPath(),
                 ["Scraper:Concurrency"] = "2",
-                ["Scraper:HttpTimeoutSeconds"] = "5"
+                ["Scraper:HttpTimeoutSeconds"] = "5",
+                ["Scraper:UserAgent"] = "UserAgent"
             })
             .Build();
 
-        var app = new Application(configRoot, _runnerMock.Object);
+        var app = new Application(configRoot, _fetcherMock.Object, _runnerMock.Object);
 
         // Act
         await app.RunAsync();
@@ -85,7 +89,8 @@ public class ApplicationTests
                 ["Scraper:UrlsFile"] = tempFile,
                 ["Scraper:ResultsDirectory"] = Path.GetTempPath(),
                 ["Scraper:Concurrency"] = "2",
-                ["Scraper:HttpTimeoutSeconds"] = "5"
+                ["Scraper:HttpTimeoutSeconds"] = "5",
+                ["Scraper:UserAgent"] = "UserAgent"
             })
             .Build();
 
@@ -93,7 +98,7 @@ public class ApplicationTests
             .ReturnsAsync([Page.SuccessPage("https://example.com", "Example")]);
 
         Console.SetIn(new StringReader("1\nn\n")); // Choose sequential, then don't save
-        var app = new Application(configRoot, _runnerMock.Object);
+        var app = new Application(configRoot, _fetcherMock.Object, _runnerMock.Object);
 
         // Act
         await app.RunAsync();
@@ -117,7 +122,8 @@ public class ApplicationTests
                 ["Scraper:UrlsFile"] = tempFile,
                 ["Scraper:ResultsDirectory"] = Path.GetTempPath(),
                 ["Scraper:Concurrency"] = "4",
-                ["Scraper:HttpTimeoutSeconds"] = "10"
+                ["Scraper:HttpTimeoutSeconds"] = "10",
+                ["Scraper:UserAgent"] = "UserAgent"
             })
             .Build();
 
@@ -125,7 +131,7 @@ public class ApplicationTests
             .ReturnsAsync([Page.SuccessPage("https://example.com", "Example")]);
 
         Console.SetIn(new StringReader("2\ny\n")); // Choose parallel, then save
-        var app = new Application(configRoot, _runnerMock.Object);
+        var app = new Application(configRoot, _fetcherMock.Object, _runnerMock.Object);
 
         // Act
         await app.RunAsync();
@@ -140,14 +146,25 @@ public class ApplicationTests
     public void Constructor_ShouldThrow_WhenDependenciesNull()
     {
         // Act
-        var ex1 = Assert.Throws<ArgumentNullException>(() => { _ = new Application(null!, _runnerMock.Object); });
-        var ex2 = Assert.Throws<ArgumentNullException>(() => { _ = new Application(_configMock.Object, null!); });
+        var ex1 = Assert.Throws<ArgumentNullException>(() =>
+        {
+            _ = new Application(null!, _fetcherMock.Object, _runnerMock.Object);
+        });
+        var ex2 = Assert.Throws<ArgumentNullException>(() =>
+        {
+            _ = new Application(_configMock.Object, _fetcherMock.Object, null!);
+        });
+        var ex3 = Assert.Throws<ArgumentNullException>(() =>
+        {
+            _ = new Application(_configMock.Object, null!, _runnerMock.Object);
+        });
 
         // Assert
         Assert.Multiple(() =>
         {
             Assert.That(ex1!.ParamName, Is.EqualTo("configuration"));
             Assert.That(ex2!.ParamName, Is.EqualTo("runner"));
+            Assert.That(ex3!.ParamName, Is.EqualTo("fetcher"));
         });
     }
 

@@ -22,7 +22,8 @@ public class ConfigurationExtensionsTests
             ["Scraper:UrlsFile"] = "urls.json",
             ["Scraper:ResultsDirectory"] = "results",
             ["Scraper:Concurrency"] = "4",
-            ["Scraper:HttpTimeoutSeconds"] = "15"
+            ["Scraper:HttpTimeoutSeconds"] = "15",
+            ["Scraper:UserAgent"] = "UserAgent"
         };
         var configuration = BuildConfiguration(values);
 
@@ -38,6 +39,7 @@ public class ConfigurationExtensionsTests
             Assert.That(config.ResultsDirectory, Is.EqualTo("results"));
             Assert.That(config.Concurrency, Is.EqualTo(4));
             Assert.That(config.HttpTimeoutSeconds, Is.EqualTo(15));
+            Assert.That(config.UserAgent, Is.EqualTo("UserAgent"));
         });
     }
 
