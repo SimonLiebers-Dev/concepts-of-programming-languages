@@ -50,16 +50,27 @@ internal class Application : IApplication
         _fetcher.SetUserAgent(config.UserAgent);
 
         // Read URLs or create empty file
-        var urls = await FileUtils.GetUrlsFromFileAsync(config.UrlsFile).ConfigureAwait(false);
+        List<string> urls;
+        try
+        {
+            urls = await FileUtils.GetUrlsFromFileAsync(config.UrlsFile).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"URLs could not be loaded from {config.UrlsFile}. Please check your json file.");
+            return;
+        }
+
+        // Print config
+        PrintConfig(config, urls.Count);
+
+        // Print warning that no urls have been configured
         if (urls.Count == 0)
         {
             Console.WriteLine("⚠️  No URLs configured.");
             Console.WriteLine($"📄  Please add URLs to '{config.UrlsFile}' before running the scraper.");
             return;
         }
-
-        // Print config
-        PrintConfig(config, urls.Count);
 
         LayoutUtils.PrintSeparator();
 
@@ -103,7 +114,14 @@ internal class Application : IApplication
         Console.WriteLine($"💾  Results Directory: {config.ResultsDirectory}/");
         Console.WriteLine($"⚙️  Concurrency: {config.Concurrency}");
         Console.WriteLine($"⏱️  HTTP Timeout (s): {config.HttpTimeoutSeconds}");
-        Console.WriteLine($"🕸️  User-Agent: {config.UserAgent[..Math.Min(config.UserAgent.Length, 80)]}...");
+
+        var userAgent = config.UserAgent;
+        if (userAgent.Length > 80)
+        {
+            userAgent = $"{userAgent[..80]}...";
+        }
+
+        Console.WriteLine($"🕸️  User-Agent: {userAgent}");
     }
 
     private async Task<IReadOnlyList<Page>> RunSequentialAsync(IReadOnlyList<string> urls, CancellationToken ct)

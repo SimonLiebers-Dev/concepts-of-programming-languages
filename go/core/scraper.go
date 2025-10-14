@@ -45,7 +45,7 @@ func (s *DefaultScraper) Scrape(ctx context.Context, url string) (*models.Page, 
 		}, fmt.Errorf("fetching %s: %w", url, err)
 	}
 
-	title, links, err := ParseHTML(bytesToReader(body))
+	title, links, images, err := ParseHTML(bytesToReader(body))
 	if err != nil {
 		return &models.Page{
 			URL:       url,
@@ -58,6 +58,7 @@ func (s *DefaultScraper) Scrape(ctx context.Context, url string) (*models.Page, 
 		URL:       url,
 		Title:     title,
 		Links:     links,
+		Images:    images,
 		TimeStamp: time.Now(),
 	}, nil
 }

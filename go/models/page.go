@@ -10,6 +10,7 @@ type Page struct {
 	URL       string    `json:"url"`             // The original URL of the page
 	Title     string    `json:"title"`           // The title of the page
 	Links     []string  `json:"links"`           // All links found on the page
+	Images    []string  `json:"images"`          // All images found on the page
 	TimeStamp time.Time `json:"timestamp"`       // When the page was scraped
 	Error     string    `json:"error,omitempty"` // Optional error message if something failed
 }

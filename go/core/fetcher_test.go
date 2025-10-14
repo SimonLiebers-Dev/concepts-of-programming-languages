@@ -25,7 +25,7 @@ func TestFetcher_Fetch_Success(t *testing.T) {
 	}))
 	defer server.Close()
 
-	fetcher := core.NewFetcher(2 * time.Second)
+	fetcher := core.NewFetcher(2*time.Second, "UserAgent")
 	body, err := fetcher.Fetch(context.Background(), server.URL)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -42,7 +42,7 @@ func TestFetcher_Fetch_StatusError(t *testing.T) {
 	}))
 	defer server.Close()
 
-	fetcher := core.NewFetcher(2 * time.Second)
+	fetcher := core.NewFetcher(2*time.Second, "UserAgent")
 	_, err := fetcher.Fetch(context.Background(), server.URL)
 	if err == nil {
 		t.Fatal("expected error for non-200 response")

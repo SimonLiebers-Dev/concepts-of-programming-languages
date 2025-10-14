@@ -16,7 +16,7 @@ public static class FileUtils
     /// <summary>
     /// Json serializer options used across methods
     /// </summary>
-    private static JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
         WriteIndented = true
     };
@@ -36,7 +36,7 @@ public static class FileUtils
         // Create the file if it doesn't exist
         if (!File.Exists(configFile))
         {
-            var json = JsonSerializer.Serialize(new List<string>(), _jsonSerializerOptions);
+            var json = JsonSerializer.Serialize(new List<string>(), JsonSerializerOptions);
             await File.WriteAllTextAsync(configFile, json).ConfigureAwait(false);
             return [];
         }
@@ -95,7 +95,7 @@ public static class FileUtils
 
         try
         {
-            var json = JsonSerializer.Serialize(pageList, _jsonSerializerOptions);
+            var json = JsonSerializer.Serialize(pageList, JsonSerializerOptions);
             await File.WriteAllTextAsync(filePath, json).ConfigureAwait(false);
             return filePath;
         }

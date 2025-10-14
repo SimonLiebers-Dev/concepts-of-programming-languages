@@ -45,6 +45,10 @@ func (m *mockFileSystem) WriteFile(name string, data []byte, perm os.FileMode) e
 	return nil
 }
 
+func (m *mockFileSystem) MakeDir(path string) error {
+	return nil
+}
+
 // fakeTimeProvider returns a fixed timestamp for reproducible tests.
 type fakeTimeProvider struct{}
 
@@ -94,12 +98,12 @@ func TestSaveResultsToFile_Success(t *testing.T) {
 		{URL: "https://b.com", Title: "B"},
 	}
 
-	filename, err := util.SaveResultsToFile(fs, tp, pages)
+	filename, err := util.SaveResultsToFile(fs, tp, "output", pages)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	expected := fmt.Sprintf("scrape-results-%d.json", tp.NowUnixMilli())
+	expected := fmt.Sprintf("output/scrape-results-%d.json", tp.NowUnixMilli())
 	if filename != expected {
 		t.Errorf("expected filename %s, got %s", expected, filename)
 	}
@@ -111,7 +115,7 @@ func TestSaveResultsToFile_Success(t *testing.T) {
 func TestSaveResultsToFile_EmptyPages(t *testing.T) {
 	fs := newMockFS()
 	tp := fakeTimeProvider{}
-	_, err := util.SaveResultsToFile(fs, tp, []*models.Page{})
+	_, err := util.SaveResultsToFile(fs, tp, "output", []*models.Page{})
 	if err == nil {
 		t.Fatal("expected error for empty pages, got nil")
 	}
@@ -123,7 +127,7 @@ func TestSaveResultsToFile_WriteError(t *testing.T) {
 	tp := fakeTimeProvider{}
 	pages := []*models.Page{{URL: "https://a.com"}}
 
-	_, err := util.SaveResultsToFile(fs, tp, pages)
+	_, err := util.SaveResultsToFile(fs, tp, "output", pages)
 	if err == nil {
 		t.Fatal("expected write error, got nil")
 	}

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"go-scraper/config"
 	"go-scraper/core"
 	"go-scraper/models"
 	"go-scraper/ui"
@@ -14,7 +15,7 @@ import (
 	"time"
 )
 
-const urlsFile = "urls.json"
+const configFile = "config.json"
 
 // Run is the top-level entry point for the scraper application.
 // It handles user interaction and orchestrates scraping.
@@ -25,29 +26,33 @@ func Run(ctx context.Context) error {
 	fs := util.OSFileSystem{}
 	tp := util.RealTimeProvider{}
 
-	urls, err := util.GetURLsFromFile(fs, urlsFile)
-	if err != nil {
-		return fmt.Errorf("loading URLs: %w", err)
-	}
+	cfg := loadConfig()
 
-	if len(urls) == 0 {
-		fmt.Println("⚠️ No URLs configured.")
-		fmt.Println("📄 Please add URLs to 'urls.json' before running the scraper.")
+	urls, err := util.GetURLsFromFile(fs, cfg.UrlsFile)
+	if err != nil {
+		fmt.Printf("URLs could not be loaded from %s. Please check your json file.\n", cfg.UrlsFile)
 		return nil
 	}
 
-	fmt.Printf("Loaded %d URLs from %s\n", len(urls), urlsFile)
+	printConfig(cfg, len(urls))
+
+	if len(urls) == 0 {
+		fmt.Println("⚠️ No URLs configured.")
+		fmt.Printf("📄 Please add URLs to '%s' before running the scraper.\n", cfg.UrlsFile)
+		return nil
+	}
+
 	ui.PrintSeparator()
 
 	choice := promptMode()
 	ui.PrintSeparator()
 
 	start := time.Now()
-	results := runScraper(ctx, choice, urls)
+	results := runScraper(ctx, choice, urls, cfg)
 	printSummary(results, time.Since(start))
 	ui.PrintSeparator()
 
-	promptSaveResults(fs, tp, results)
+	promptSaveResults(fs, tp, cfg, results)
 	return nil
 }
 
@@ -72,19 +77,19 @@ func promptMode() int {
 	}
 }
 
-func runScraper(ctx context.Context, choice int, urls []string) []*models.Page {
-	fetcher := core.NewFetcher(15 * time.Second)
+func runScraper(ctx context.Context, choice int, urls []string, scrapeConfig *config.ScrapeConfig) []*models.Page {
+	fetcher := core.NewFetcher(time.Duration(scrapeConfig.HttpTimeoutSeconds)*time.Second, scrapeConfig.UserAgent)
 	scraper := core.NewScraper(fetcher)
 
 	switch choice {
 	case 1:
-		fmt.Println("🚀 Running sequential scraper...")
+		fmt.Println("🚀  Running sequential scraper...")
 		ui.PrintSeparator()
 		return core.RunSequential(ctx, urls, scraper)
 	default:
-		fmt.Println("🚀 Running parallel scraper...")
+		fmt.Println("🚀  Running parallel scraper...")
 		ui.PrintSeparator()
-		return core.RunParallel(ctx, urls, scraper, 5)
+		return core.RunParallel(ctx, urls, scraper, scrapeConfig.Concurrency)
 	}
 }
 
@@ -104,16 +109,16 @@ func printSummary(pages []*models.Page, duration time.Duration) {
 	fmt.Printf("✅ %d successful | ❌ %d failed | ⏱️ Duration: %v\n", success, fail, duration)
 }
 
-func promptSaveResults(fs util.FileSystem, tp util.TimeProvider, pages []*models.Page) {
+func promptSaveResults(fs util.FileSystem, tp util.TimeProvider, scrapeConfig *config.ScrapeConfig, pages []*models.Page) {
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
-		fmt.Print("💾 Do you want to save the results to a file? (y/n): ")
+		fmt.Print("💾  Do you want to save the results to a file? (y/n): ")
 		scanner.Scan()
 
 		answer := strings.TrimSpace(strings.ToLower(scanner.Text()))
 		switch answer {
 		case "y":
-			filename, err := util.SaveResultsToFile(fs, tp, pages)
+			filename, err := util.SaveResultsToFile(fs, tp, scrapeConfig.ResultsDirectory, pages)
 			if err != nil {
 				fmt.Println("❌ Error saving file:", err)
 			} else {
@@ -121,10 +126,45 @@ func promptSaveResults(fs util.FileSystem, tp util.TimeProvider, pages []*models
 			}
 			return
 		case "n":
-			fmt.Println("ℹ️ Results not saved.")
+			fmt.Println("ℹ️  Results not saved.")
 			return
 		default:
 			fmt.Println("Please type 'y' or 'n'")
 		}
+	}
+}
+
+func printConfig(cfg *config.ScrapeConfig, urlCount int) {
+	fmt.Printf("📄  URLs File: %s (%d urls loaded)\n", cfg.UrlsFile, urlCount)
+	fmt.Printf("💾  Results Directory: %s/\n", cfg.ResultsDirectory)
+	fmt.Printf("⚙️  Concurrency: %d\n", cfg.Concurrency)
+	fmt.Printf("⏱️  HTTP Timeout (s): %d\n", cfg.HttpTimeoutSeconds)
+
+	// Truncate the User-Agent if it's longer than 80 characters
+	userAgent := cfg.UserAgent
+	if len(userAgent) > 80 {
+		userAgent = userAgent[:80] + "..."
+	}
+
+	fmt.Printf("🕸️  User-Agent: %s\n", userAgent)
+}
+
+func loadConfig() *config.ScrapeConfig {
+	cfg, err := config.LoadConfig(configFile)
+	if err != nil {
+		defaultCfg := config.NewDefaultConfig()
+		err = config.SaveConfig(configFile, defaultCfg)
+
+		if err != nil {
+			fmt.Println("No config file was found. Fallback to default values.")
+			ui.PrintSeparator()
+			return defaultCfg
+		} else {
+			fmt.Println("Invalid config or no config file was found. The file was created with default values in", configFile)
+			ui.PrintSeparator()
+			return defaultCfg
+		}
+	} else {
+		return cfg
 	}
 }

@@ -7,17 +7,18 @@ import (
 	"golang.org/x/net/html"
 )
 
-// ParseHTML extracts the <title> text and all <a href="..."> links
+// ParseHTML extracts the <title> text, all <a href="..."> links and all <img src="...">
 // from an HTML document provided via an io.Reader.
-// It returns the page title (trimmed) and a slice of links.
-func ParseHTML(body io.Reader) (string, []string, error) {
+// It returns the page title (trimmed) and a slice of links and images.
+func ParseHTML(body io.Reader) (string, []string, []string, error) {
 	doc, err := html.Parse(body)
 	if err != nil {
-		return "", nil, err
+		return "", nil, nil, err
 	}
 
 	var title string
 	var links []string
+	var images []string
 
 	var traverse func(*html.Node)
 	traverse = func(n *html.Node) {
@@ -33,6 +34,12 @@ func ParseHTML(body io.Reader) (string, []string, error) {
 						links = append(links, attr.Val)
 					}
 				}
+			case "img":
+				for _, attr := range n.Attr {
+					if attr.Key == "src" && attr.Val != "" {
+						images = append(images, attr.Val)
+					}
+				}
 			}
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
@@ -42,5 +49,5 @@ func ParseHTML(body io.Reader) (string, []string, error) {
 
 	traverse(doc)
 
-	return strings.TrimSpace(title), links, nil
+	return strings.TrimSpace(title), links, images, nil
 }
