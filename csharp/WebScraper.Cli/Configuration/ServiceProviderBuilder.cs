@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using WebScraper.Cli.App;
 using WebScraper.Core.DependencyInjection;
+using WebScraper.Core.Scraping;
 
 namespace WebScraper.Cli.Configuration;
 
@@ -59,8 +60,8 @@ public static class ServiceProviderBuilder
             });
         }
 
-        // Add web scraper core with configured httpClient timeout
-        services.AddWebScraperCore(configureHttpClient: client => { client.Timeout = TimeSpan.FromSeconds(10); });
+        // Add web scraper core with semaphore runner
+        services.AddWebScraperCore<ParallelScrapeRunner>();
 
         // Register main application
         services.AddTransient<IApplication, Application>();

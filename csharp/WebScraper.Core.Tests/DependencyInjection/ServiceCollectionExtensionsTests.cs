@@ -22,7 +22,7 @@ public class ServiceCollectionExtensionsTests
     public void AddWebScraperCore_ShouldRegisterAllRequiredServices()
     {
         // Act
-        _services.AddWebScraperCore();
+        _services.AddWebScraperCore<ParallelScrapeRunner>();
         var provider = _services.BuildServiceProvider();
 
         // Assert
@@ -41,34 +41,17 @@ public class ServiceCollectionExtensionsTests
     public void AddWebScraperCore_ShouldReturnSameServiceCollectionInstance()
     {
         // Act
-        var result = _services.AddWebScraperCore();
+        var result = _services.AddWebScraperCore<ParallelScrapeRunner>();
 
         // Assert
         Assert.That(result, Is.SameAs(_services), "Should return same IServiceCollection for chaining.");
     }
 
     [Test]
-    public void AddWebScraperCore_ShouldConfigureHttpClient_WhenDelegateProvided()
-    {
-        // Arrange
-        var timeout = TimeSpan.FromSeconds(42);
-        _services.AddWebScraperCore(client => client.Timeout = timeout);
-        var provider = _services.BuildServiceProvider();
-
-        // Act
-        var factory = provider.GetRequiredService<IHttpClientFactory>();
-        var client = factory.CreateClient(nameof(IHtmlFetcher));
-
-        // Assert
-        Assert.That(client.Timeout, Is.EqualTo(timeout),
-            "HttpClient should respect timeout configured via delegate.");
-    }
-
-    [Test]
     public void AddWebScraperCore_ShouldRegisterTransientLifetimes()
     {
         // Act
-        _services.AddWebScraperCore();
+        _services.AddWebScraperCore<ParallelScrapeRunner>();
         var provider = _services.BuildServiceProvider();
 
         // Act + Assert

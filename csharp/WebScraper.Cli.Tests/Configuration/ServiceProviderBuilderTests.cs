@@ -66,21 +66,6 @@ public class ServiceProviderBuilderTests
     }
 
     [Test]
-    public void CreateServiceProvider_ShouldRegisterConfiguredHttpClient()
-    {
-        // Arrange
-        var provider = ServiceProviderBuilder.CreateServiceProvider();
-        var factory = provider.GetRequiredService<IHttpClientFactory>();
-
-        // Act
-        var client = factory.CreateClient(nameof(IHtmlFetcher));
-
-        // Assert
-        Assert.That(client.Timeout, Is.EqualTo(TimeSpan.FromSeconds(10)),
-            "HttpClient should have a 10-second timeout configured.");
-    }
-
-    [Test]
     public void CreateServiceProvider_ShouldBuildProviderWithoutThrowing()
     {
         // Act + Assert

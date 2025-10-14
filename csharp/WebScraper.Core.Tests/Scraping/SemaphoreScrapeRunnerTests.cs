@@ -8,21 +8,21 @@ using WebScraper.Core.UI;
 namespace WebScraper.Core.Tests.Scraping;
 
 [TestFixture]
-public class DefaultScrapeRunnerTests
+public class SemaphoreScrapeRunnerTests
 {
     private Mock<IScraper> _scraperMock = null!;
-    private Mock<ILogger<DefaultScrapeRunner>> _loggerMock = null!;
+    private Mock<ILogger<SemaphoreScrapeRunner>> _loggerMock = null!;
     private Mock<IProgressBarManager> _progressMock = null!;
-    private DefaultScrapeRunner _runner = null!;
+    private SemaphoreScrapeRunner _runner = null!;
 
     [SetUp]
     public void SetUp()
     {
         _scraperMock = new Mock<IScraper>();
-        _loggerMock = new Mock<ILogger<DefaultScrapeRunner>>();
+        _loggerMock = new Mock<ILogger<SemaphoreScrapeRunner>>();
         _progressMock = new Mock<IProgressBarManager>();
 
-        _runner = new DefaultScrapeRunner(_scraperMock.Object, _loggerMock.Object, _progressMock.Object);
+        _runner = new SemaphoreScrapeRunner(_scraperMock.Object, _loggerMock.Object, _progressMock.Object);
     }
 
     [Test]
@@ -46,7 +46,7 @@ public class DefaultScrapeRunnerTests
         // Act
         var ex = Assert.Throws<ArgumentNullException>(() =>
         {
-            _ = new DefaultScrapeRunner(null!, _loggerMock.Object, _progressMock.Object);
+            _ = new SemaphoreScrapeRunner(null!, _loggerMock.Object, _progressMock.Object);
         });
 
         // Assert
@@ -59,7 +59,7 @@ public class DefaultScrapeRunnerTests
         // Act
         var ex = Assert.Throws<ArgumentNullException>(() =>
         {
-            _ = new DefaultScrapeRunner(_scraperMock.Object, null!, _progressMock.Object);
+            _ = new SemaphoreScrapeRunner(_scraperMock.Object, null!, _progressMock.Object);
         });
 
         // Assert
@@ -72,7 +72,7 @@ public class DefaultScrapeRunnerTests
         // Act
         var ex = Assert.Throws<ArgumentNullException>(() =>
         {
-            _ = new DefaultScrapeRunner(_scraperMock.Object, _loggerMock.Object, null!);
+            _ = new SemaphoreScrapeRunner(_scraperMock.Object, _loggerMock.Object, null!);
         });
 
         // Assert
