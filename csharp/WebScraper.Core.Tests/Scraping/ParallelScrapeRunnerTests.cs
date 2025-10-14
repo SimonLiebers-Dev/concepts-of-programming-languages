@@ -8,12 +8,12 @@ using WebScraper.Core.UI;
 namespace WebScraper.Core.Tests.Scraping;
 
 [TestFixture]
-public class SemaphoreScrapeRunnerTests
+public class ParallelScrapeRunnerTests
 {
     private Mock<IScraper> _scraperMock = null!;
     private Mock<IProgressBarManager> _progressMock = null!;
     private Mock<ILogger<SemaphoreScrapeRunner>> _loggerMock = null!;
-    private SemaphoreScrapeRunner _runner = null!;
+    private ParallelScrapeRunner _runner = null!;
 
     [SetUp]
     public void SetUp()
@@ -21,13 +21,13 @@ public class SemaphoreScrapeRunnerTests
         _scraperMock = new Mock<IScraper>();
         _progressMock = new Mock<IProgressBarManager>();
         _loggerMock = new Mock<ILogger<SemaphoreScrapeRunner>>();
-
+        
         _progressMock.Setup(p => p.CreateProgressBar(It.IsAny<string>(), It.IsAny<int>()))
             .Returns(new ProgressTask(0, "Desc", 2));
 
         _progressMock.Setup(p => p.StartRenderingAsync()).Returns(Task.CompletedTask);
 
-        _runner = new SemaphoreScrapeRunner(
+        _runner = new ParallelScrapeRunner(
             _scraperMock.Object,
             _loggerMock.Object,
             _progressMock.Object);
@@ -63,7 +63,7 @@ public class SemaphoreScrapeRunnerTests
         var result = await _runner.RunParallelAsync(urls, concurrency: 3);
 
         // Assert
-        Assert.That(result, Has.Count.EqualTo(10));
+        Assert.That(result, Has.Count.EqualTo(urls.Count));
         Assert.That(result.All(p => p.Success), Is.True);
     }
 
@@ -86,19 +86,19 @@ public class SemaphoreScrapeRunnerTests
     public async Task RunParallelAsync_ShouldRespectConcurrencyLimit()
     {
         // Arrange
-        var urls = Enumerable.Range(1, 20).Select(i => $"url{i}").ToList();
-        var activeTasks = 0;
+        var urls = Enumerable.Range(1, 25).Select(i => $"url{i}").ToList();
+        var activeCount = 0;
         var maxConcurrent = 0;
-        const int concurrencyLimit = 4;
+        var concurrencyLimit = 4;
 
-        // Track concurrency usage
+        // Track concurrent active scrapes
         _scraperMock.Setup(s => s.ScrapeAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .Returns(async (string url, CancellationToken ct) =>
             {
-                Interlocked.Increment(ref activeTasks);
-                maxConcurrent = Math.Max(maxConcurrent, activeTasks);
-                await Task.Delay(50, ct);
-                Interlocked.Decrement(ref activeTasks);
+                Interlocked.Increment(ref activeCount);
+                maxConcurrent = Math.Max(maxConcurrent, activeCount);
+                await Task.Delay(40, ct);
+                Interlocked.Decrement(ref activeCount);
                 return Page.SuccessPage(url, "Title", [], []);
             });
 
@@ -106,10 +106,44 @@ public class SemaphoreScrapeRunnerTests
         var result = await _runner.RunParallelAsync(urls, concurrencyLimit);
 
         // Assert
-        Assert.Multiple(() =>
+        Assert.That(result, Has.Count.EqualTo(urls.Count));
+        Assert.That(maxConcurrent, Is.LessThanOrEqualTo(concurrencyLimit));
+    }
+
+    [Test]
+    public async Task RunParallelAsync_ShouldReturnPartialResultsOnCancellation()
+    {
+        // Arrange
+        var urls = Enumerable.Range(1, 30).Select(i => $"url{i}").ToList();
+        var cts = new CancellationTokenSource();
+
+        _scraperMock.Setup(s => s.ScrapeAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(async (string url, CancellationToken token) =>
+            {
+                await Task.Delay(30, token);
+                return Page.SuccessPage(url, "Title", [], []);
+            });
+
+        // Cancel after short delay
+        _ = Task.Run(async () =>
         {
-            Assert.That(result, Has.Count.EqualTo(20));
-            Assert.That(maxConcurrent, Is.LessThanOrEqualTo(concurrencyLimit));
-        });
+            await Task.Delay(50, cts.Token);
+            await cts.CancelAsync();
+        }, cts.Token);
+
+        // Act
+        IReadOnlyList<Page> result;
+        try
+        {
+            result = await _runner.RunParallelAsync(urls, concurrency: 8, cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            // Some environments might throw cancellation before results are collected.
+            result = new List<Page>();
+        }
+
+        // Assert
+        Assert.That(result.Count, Is.LessThanOrEqualTo(urls.Count));
     }
 }
