@@ -34,7 +34,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IProgressBarManager, ProgressBarManager>();
 
         // Add scrape runner
-        return services.AddTransient<IScrapeRunner, TRunner>();
+        services.AddTransient<IScrapeRunner, TRunner>();
 
         return services;
     }

@@ -84,7 +84,7 @@ internal class ProgressBarManager : IProgressBarManager
     {
         if (Context is null)
             throw new InvalidOperationException("Renderer not started. Call StartRendering() first.");
-
+        
         var task = Context.AddTask($"[yellow]Fetching {url}[/]", autoStart: true, maxValue: maxValue);
         _tasks.Add(task);
 
