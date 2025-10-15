@@ -8,17 +8,17 @@ namespace WebScraper.Core.Scraping;
 /// Default implementation of <see cref="IScraper"/> that combines
 /// an <see cref="IHtmlFetcher"/> and <see cref="IHtmlParser"/> to produce a <see cref="Page"/>.
 /// </summary>
-internal class DefaultWebScraper : IScraper
+internal class DefaultScraper : IScraper
 {
     private readonly IHtmlFetcher _fetcher;
     private readonly IHtmlParser _parser;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DefaultWebScraper"/> class.
+    /// Initializes a new instance of the <see cref="DefaultScraper"/> class.
     /// </summary>
     /// <param name="fetcher">The HTML fetcher used to retrieve page content.</param>
     /// <param name="parser">The HTML parser used to extract titles and links.</param>
-    public DefaultWebScraper(IHtmlFetcher fetcher, IHtmlParser parser)
+    public DefaultScraper(IHtmlFetcher fetcher, IHtmlParser parser)
     {
         _fetcher = fetcher ?? throw new ArgumentNullException(nameof(fetcher));
         _parser = parser ?? throw new ArgumentNullException(nameof(parser));

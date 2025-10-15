@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 namespace WebScraper.Core.Fetcher;
 
 /// <inheritdoc />
-internal class HtmlFetcher(HttpClient httpClient, ILogger<HtmlFetcher> logger) : IHtmlFetcher
+public class HtmlFetcher(HttpClient httpClient, ILogger<HtmlFetcher> logger) : IHtmlFetcher
 {
     /// <summary>
     /// The default user-agent string used when none is explicitly set.

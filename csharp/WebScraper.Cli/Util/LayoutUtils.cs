@@ -1,4 +1,4 @@
-namespace WebScraper.Core.Util;
+namespace WebScraper.Cli.Util;
 
 /// <summary>
 /// Provides utility methods for rendering consistent visual elements in the CLI output,

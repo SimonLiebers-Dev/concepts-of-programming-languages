@@ -1,8 +1,8 @@
 using System.Text.Json;
+using WebScraper.Cli.Util;
 using WebScraper.Core.Models;
-using WebScraper.Core.Util;
 
-namespace WebScraper.Core.Tests.Util;
+namespace WebScraper.Cli.Tests.Util;
 
 [TestFixture]
 public class FileUtilsTests

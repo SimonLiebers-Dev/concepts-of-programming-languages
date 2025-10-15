@@ -1,0 +1,120 @@
+@startuml Classdiagram
+skinparam classAttributeIconSize 0
+skinparam classFontSize 14
+skinparam classAttributeFontSize 12
+skinparam classBorderColor #444
+skinparam classBackgroundColor #F7F7F7
+skinparam shadowing true
+hide empty methods
+hide empty attributes
+
+package "Core" {
+    class ServiceCollectionExtensions <<static>> {
+        + AddWebScraperCore<TRunner>(services: IServiceCollection) : IServiceCollection
+    }
+    
+    interface IProgressBarManager {
+        + StartRenderingAsync() : Task
+        + CreateProgressBar(url: string, maxValue: int) : ProgressTask
+        + StopRendererAsync() : ValueTask
+    }
+
+    class ProgressBarManager {
+        + ProgressBarManager()
+        + StartRenderingAsync() : Task
+        + CreateProgressBar(url: string, maxValue: int) : ProgressTask
+        + StopRendererAsync() : ValueTask
+        + DisposeAsync() : ValueTask
+    }
+
+    IProgressBarManager <|.. ProgressBarManager
+
+    interface IScraper {
+        + ScrapeAsync(url: string, ct: CancellationToken = default) : Task<Page>
+    }
+
+    class DefaultWebScraper {
+        + DefaultWebScraper(fetcher: IHtmlFetcher, parser: IHtmlParser)
+        + ScrapeAsync(url: string, ct: CancellationToken = default) : Task<Page>
+    }
+
+    interface IScrapeRunner {
+        + RunSequentialAsync(urls: string[], ct: CancellationToken = default) : Task<Page[]>
+        + RunParallelAsync(urls: string[], concurrency: int, ct: CancellationToken = default) : Task<Page[]>
+    }
+
+    abstract class BaseScrapeRunner {
+        + BaseScrapeRunner(scraper: IScraper, logger: ILogger, progressBarManager: IProgressBarManager)
+        # RunWithProgressAsync(urls: string[], scrapeFunc: Func<string[], CancellationToken, Task<string[]>>, ct: CancellationToken) : Task<string[]>
+        # ScrapeWithTrackingAsync(url: string, ct: CancellationToken) : Task<Page>
+    }
+
+    class ParallelScrapeRunner {
+        + ParallelScrapeRunner(scraper: IScraper, logger: ILogger, progressBarManager: IProgressBarManager)
+        + RunSequentialAsync(urls: string[], ct: CancellationToken = default) : Task<string[]>
+        + RunParallelAsync(urls: string[], concurrency: int, ct: CancellationToken = default) : Task<string[]>
+    }
+
+    class SemaphoreScrapeRunner {
+        + SemaphoreScrapeRunner(scraper: IScraper, logger: ILogger, progressBarManager: IProgressBarManager)
+        + RunSequentialAsync(urls: string[], ct: CancellationToken = default) : Task<string[]>
+        + RunParallelAsync(urls: string[], concurrency: int, ct: CancellationToken = default) : Task<string[]>
+    }
+
+    IScraper <|.. DefaultWebScraper
+    IScrapeRunner <|.. BaseScrapeRunner
+    BaseScrapeRunner <|-- ParallelScrapeRunner
+    BaseScrapeRunner <|-- SemaphoreScrapeRunner
+
+    interface IHtmlParser {
+        + Parse(html: string) : ParserResult
+    }
+
+    class HtmlParser {
+        + HtmlParser()
+        + Parse(html: string) : ParserResult
+    }
+
+    IHtmlParser <|.. HtmlParser
+
+    interface IHtmlFetcher {
+        + SetUserAgent(userAgent: string) : void
+        + SetHttpTimeout(httpTimeoutSeconds: int) : void
+        + FetchAsync(url: string, ct: CancellationToken = default) : Task<string>
+    }
+
+    class HtmlFetcher {
+        - _userAgent : string
+        + SetUserAgent(userAgent: string) : void
+        + SetHttpTimeout(httpTimeoutSeconds: int) : void
+        + FetchAsync(url: string, ct: CancellationToken = default) : Task<string>
+    }
+
+    IHtmlFetcher <|.. HtmlFetcher
+
+    class Page <<record>> {
+        + Url : string
+        + Title : string?
+        + Links : string[]
+        + Images : string[]
+        + Timestamp : DateTimeOffset
+        + Success : bool
+        + ErrorMessage : string?
+        + SuccessPage(url: string, title: string?, links: string[]?, images: string[]?, timestamp: DateTimeOffset?) : Page
+        + ErrorPage(url: string, error: string, timestamp: DateTimeOffset?) : Page
+    }
+
+    class ParserResult <<record>> {
+        + Title : string
+        + Links : string[]
+        + Images : string[]
+    }
+}
+
+' Relations - Core
+DefaultWebScraper *-- IHtmlFetcher
+DefaultWebScraper *-- IHtmlParser
+BaseScrapeRunner *-- IScraper
+BaseScrapeRunner *-- IProgressBarManager
+HtmlParser --> ParserResult
+@enduml

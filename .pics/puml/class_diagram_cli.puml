@@ -1,0 +1,70 @@
+@startuml Classdiagram
+skinparam classAttributeIconSize 0
+skinparam classFontSize 14
+skinparam classAttributeFontSize 12
+skinparam classBorderColor #444
+skinparam classBackgroundColor #F7F7F7
+skinparam shadowing true
+hide empty methods
+hide empty attributes
+
+package "Cli" {
+    class FileUtils <<static>> {
+        + GetUrlsFromFileAsync(configFile: string) : Task<string[]>
+        + SaveResultsToFileAsync(pages: Page[], outputDir: string, timestamp: DateTimeOffset) : Task<string>
+    }
+
+    class LayoutUtils <<static>> {
+        - AsciiHeader : string
+        - InfoLines : string[]
+        + PrintHeader() : void
+        + PrintSeparator(width: int = 100) : void
+    }
+
+    class ConfigurationExtensions <<static>> {
+        + TryGetScrapeConfig(configuration: IConfiguration, out config: ScrapeConfig, out error: string?) : bool
+    }
+
+    class ScrapeConfig {
+        + UrlsFile : string
+        + ResultsDirectory : string
+        + Concurrency : int
+        + HttpTimeoutSeconds : int
+        + UserAgent : string
+        + Validate() : void
+    }
+
+    interface IApplication {
+        + RunAsync(ct: CancellationToken = default) : Task
+    }
+
+    class Application {
+        + Application(configuration: IConfiguration, fetcher: IHtmlFetcher, runner: IScrapeRunner)
+        + RunAsync(ct: CancellationToken = default) : Task
+        - PromptMode() : int
+        - PrintConfig(config: ScrapeConfig, urlCount: int) : void
+        - RunSequentialAsync(urls: string[], ct: CancellationToken) : Task<string[]>
+        - RunParallelAsync(urls: string[], config: ScrapeConfig, ct: CancellationToken) : Task<string[]>
+        - PrintSummary(pages: string[], duration: TimeSpan) : void
+        - PromptSaveResultsAsync(pages: string[], config: ScrapeConfig) : Task
+    }
+
+    class Program <<static>> {
+        - Main(args: string[]) : Task
+        - RunAsync(args: string[], provider: IServiceProvider?) : Task
+    }
+
+    class ServiceProviderUtils <<static>> {
+        + CreateServiceProvider(enableLogging: bool = false) : IServiceProvider
+    }
+}
+
+' Relations - Cli
+Program --> ServiceProviderUtils
+Program --> IApplication
+Application --> ConfigurationExtensions
+ConfigurationExtensions --> ScrapeConfig
+Application --> FileUtils
+Application --> LayoutUtils
+IApplication <|.. Application
+@enduml

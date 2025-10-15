@@ -3,7 +3,7 @@ using WebScraper.Core.Models;
 namespace WebScraper.Core.Parser;
 
 /// <inheritdoc />
-internal class HtmlParser : IHtmlParser
+public class HtmlParser : IHtmlParser
 {
     private readonly AngleSharp.Html.Parser.HtmlParser _parser;
 
@@ -14,14 +14,6 @@ internal class HtmlParser : IHtmlParser
     public HtmlParser()
     {
         _parser = new AngleSharp.Html.Parser.HtmlParser();
-    }
-
-    /// <inheritdoc />
-    public async Task<ParserResult> ParseAsync(Stream htmlStream, CancellationToken ct = default)
-    {
-        using var reader = new StreamReader(htmlStream);
-        var html = await reader.ReadToEndAsync(ct).ConfigureAwait(false);
-        return Parse(html);
     }
 
     /// <inheritdoc />

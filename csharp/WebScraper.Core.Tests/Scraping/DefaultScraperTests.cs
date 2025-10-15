@@ -7,18 +7,18 @@ using WebScraper.Core.Scraping;
 namespace WebScraper.Core.Tests.Scraping;
 
 [TestFixture]
-public class DefaultWebScraperTests
+public class DefaultScraperTests
 {
     private Mock<IHtmlFetcher> _fetcherMock = null!;
     private Mock<IHtmlParser> _parserMock = null!;
-    private DefaultWebScraper _scraper = null!;
+    private DefaultScraper _scraper = null!;
 
     [SetUp]
     public void SetUp()
     {
         _fetcherMock = new Mock<IHtmlFetcher>();
         _parserMock = new Mock<IHtmlParser>();
-        _scraper = new DefaultWebScraper(_fetcherMock.Object, _parserMock.Object);
+        _scraper = new DefaultScraper(_fetcherMock.Object, _parserMock.Object);
     }
 
     [Test]
@@ -111,7 +111,7 @@ public class DefaultWebScraperTests
     public void Constructor_ShouldThrow_WhenFetcherIsNull()
     {
         // Act
-        var ex = Assert.Throws<ArgumentNullException>(() => { _ = new DefaultWebScraper(null!, _parserMock.Object); });
+        var ex = Assert.Throws<ArgumentNullException>(() => { _ = new DefaultScraper(null!, _parserMock.Object); });
 
         // Assert
         Assert.That(ex!.ParamName, Is.EqualTo("fetcher"));
@@ -121,7 +121,7 @@ public class DefaultWebScraperTests
     public void Constructor_ShouldThrow_WhenParserIsNull()
     {
         // Act
-        var ex = Assert.Throws<ArgumentNullException>(() => { _ = new DefaultWebScraper(_fetcherMock.Object, null!); });
+        var ex = Assert.Throws<ArgumentNullException>(() => { _ = new DefaultScraper(_fetcherMock.Object, null!); });
 
         // Assert
         Assert.That(ex!.ParamName, Is.EqualTo("parser"));

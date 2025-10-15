@@ -1,6 +1,6 @@
-using WebScraper.Core.Util;
+using WebScraper.Cli.Util;
 
-namespace WebScraper.Core.Tests.Util;
+namespace WebScraper.Cli.Tests.Util;
 
 [TestFixture]
 public class LayoutUtilsTests

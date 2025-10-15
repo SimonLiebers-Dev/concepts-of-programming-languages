@@ -3,9 +3,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using WebScraper.Cli.App;
 using WebScraper.Core.DependencyInjection;
+using WebScraper.Core.Fetcher;
+using WebScraper.Core.Parser;
 using WebScraper.Core.Scraping;
 
-namespace WebScraper.Cli.Configuration;
+namespace WebScraper.Cli.Util;
 
 /// <summary>
 /// Provides a factory for constructing a configured <see cref="IServiceProvider"/> instance
@@ -16,7 +18,7 @@ namespace WebScraper.Cli.Configuration;
 /// for the web scraper CLI application. It can be used as the single
 /// entry point for creating the application's service provider.
 /// </remarks>
-public static class ServiceProviderBuilder
+public static class ServiceProviderUtils
 {
     /// <summary>
     /// Creates and configures a new <see cref="IServiceProvider"/> instance.

@@ -27,11 +27,8 @@ public static class ServiceCollectionExtensions
         // Add HTML parser
         services.AddTransient<IHtmlParser, HtmlParser>();
 
-        // Add HTML fetcher
-        services.AddTransient<IHtmlFetcher, HtmlFetcher>();
-
         // Add web scraper
-        services.AddTransient<IScraper, DefaultWebScraper>();
+        services.AddTransient<IScraper, DefaultScraper>();
 
         // Add web scraper
         services.AddTransient<IProgressBarManager, ProgressBarManager>();

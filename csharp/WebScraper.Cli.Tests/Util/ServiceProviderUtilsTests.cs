@@ -2,22 +2,22 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using WebScraper.Cli.App;
-using WebScraper.Cli.Configuration;
+using WebScraper.Cli.Util;
 using WebScraper.Core.Fetcher;
 using WebScraper.Core.Parser;
 using WebScraper.Core.Scraping;
 using WebScraper.Core.UI;
 
-namespace WebScraper.Cli.Tests.Configuration;
+namespace WebScraper.Cli.Tests.Util;
 
 [TestFixture]
-public class ServiceProviderBuilderTests
+public class ServiceProviderUtilsTests
 {
     [Test]
     public void CreateServiceProvider_ShouldReturnValidProvider()
     {
         // Act
-        var provider = ServiceProviderBuilder.CreateServiceProvider();
+        var provider = ServiceProviderUtils.CreateServiceProvider();
 
         // Assert
         Assert.That(provider, Is.Not.Null, "Provider should not be null");
@@ -44,7 +44,7 @@ public class ServiceProviderBuilderTests
     public void CreateServiceProvider_ShouldResolveAllDependenciesForApplication()
     {
         // Arrange
-        var provider = ServiceProviderBuilder.CreateServiceProvider();
+        var provider = ServiceProviderUtils.CreateServiceProvider();
 
         // Act + Assert
         var app = provider.GetRequiredService<IApplication>();
@@ -55,13 +55,13 @@ public class ServiceProviderBuilderTests
     public void CreateServiceProvider_ShouldIncludeLogging_WhenEnabled()
     {
         // Act
-        var provider = ServiceProviderBuilder.CreateServiceProvider(enableLogging: true);
+        var provider = ServiceProviderUtils.CreateServiceProvider(enableLogging: true);
 
         // Assert
         var loggerFactory = provider.GetService<ILoggerFactory>();
         Assert.That(loggerFactory, Is.Not.Null, "ILoggerFactory should be registered when logging is enabled");
 
-        var logger = loggerFactory!.CreateLogger<ServiceProviderBuilderTests>();
+        var logger = loggerFactory!.CreateLogger<ServiceProviderUtilsTests>();
         Assert.DoesNotThrow(() => logger.LogInformation("Logging works!"));
     }
 
@@ -69,14 +69,14 @@ public class ServiceProviderBuilderTests
     public void CreateServiceProvider_ShouldBuildProviderWithoutThrowing()
     {
         // Act + Assert
-        Assert.DoesNotThrow(() => ServiceProviderBuilder.CreateServiceProvider());
+        Assert.DoesNotThrow(() => ServiceProviderUtils.CreateServiceProvider());
     }
 
     [Test]
     public void CreateServiceProvider_ShouldReturnNewInstances()
     {
         // Arrange
-        var provider = ServiceProviderBuilder.CreateServiceProvider();
+        var provider = ServiceProviderUtils.CreateServiceProvider();
 
         // Act
         var scraper1 = provider.GetRequiredService<IScraper>();

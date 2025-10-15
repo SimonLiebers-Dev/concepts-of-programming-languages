@@ -80,35 +80,6 @@ public class HtmlParserTests
     }
 
     [Test]
-    public async Task ParseAsync_ShouldReturnSameResult_AsParseString()
-    {
-        // Arrange
-        const string html = """
-                                <html>
-                                    <head><title>Stream Test</title></head>
-                                    <body>
-                                        <a href="https://stream.com">Stream</a>
-                                        <img src="stream.png" />
-                                    </body>
-                                </html>
-                            """;
-
-        await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(html));
-
-        // Act
-        var asyncResult = await _parser.ParseAsync(stream);
-        var syncResult = _parser.Parse(html);
-
-        // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(asyncResult.Title, Is.EqualTo(syncResult.Title));
-            Assert.That(asyncResult.Links, Is.EqualTo(syncResult.Links));
-            Assert.That(asyncResult.Images, Is.EqualTo(syncResult.Images));
-        });
-    }
-
-    [Test]
     public void Parse_ShouldHandleNoTitleGracefully()
     {
         // Arrange

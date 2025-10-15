@@ -13,7 +13,7 @@ namespace WebScraper.Core.Scraping;
 /// concurrency during parallel scraping. Each worker acquires a semaphore
 /// slot before scraping a URL and releases it upon completion.
 /// </remarks>
-public class SemaphoreScrapeRunner : BaseScrapeRunner, IScrapeRunner
+public class SemaphoreScrapeRunner : BaseScrapeRunner
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="SemaphoreScrapeRunner"/> class.
@@ -32,7 +32,7 @@ public class SemaphoreScrapeRunner : BaseScrapeRunner, IScrapeRunner
     /// <summary>
     /// Runs the scraper sequentially, scraping each URL one after another while updating the progress display.
     /// </summary>
-    public async Task<IReadOnlyList<Page>> RunSequentialAsync(
+    public override async Task<IReadOnlyList<Page>> RunSequentialAsync(
         IReadOnlyList<string> urls,
         CancellationToken ct = default)
     {
@@ -47,7 +47,7 @@ public class SemaphoreScrapeRunner : BaseScrapeRunner, IScrapeRunner
     /// concurrent scraping tasks. Each worker waits for an available slot before
     /// scraping and releases the slot once finished.
     /// </remarks>
-    public async Task<IReadOnlyList<Page>> RunParallelAsync(
+    public override async Task<IReadOnlyList<Page>> RunParallelAsync(
         IReadOnlyList<string> urls,
         int concurrency,
         CancellationToken ct = default)

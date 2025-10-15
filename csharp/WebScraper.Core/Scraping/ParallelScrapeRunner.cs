@@ -17,7 +17,7 @@ public class ParallelScrapeRunner(
     IScraper scraper,
     ILogger<SemaphoreScrapeRunner> logger,
     IProgressBarManager progressBarManager)
-    : BaseScrapeRunner(scraper, logger, progressBarManager), IScrapeRunner
+    : BaseScrapeRunner(scraper, logger, progressBarManager)
 {
     /// <summary>
     /// Executes a sequential scraping process by delegating to
@@ -28,8 +28,7 @@ public class ParallelScrapeRunner(
     /// <returns>
     /// A task representing the asynchronous operation, returning a list of <see cref="Page"/> results.
     /// </returns>
-    public async Task<IReadOnlyList<Page>> RunSequentialAsync(
-        IReadOnlyList<string> urls,
+    public override async Task<IReadOnlyList<Page>> RunSequentialAsync(IReadOnlyList<string> urls,
         CancellationToken ct = default)
     {
         // Sequential mode is just parallel mode limited to a single worker.
@@ -47,7 +46,7 @@ public class ParallelScrapeRunner(
     /// <returns>
     /// A task representing the asynchronous operation, returning a list of <see cref="Page"/> results.
     /// </returns>
-    public async Task<IReadOnlyList<Page>> RunParallelAsync(
+    public override async Task<IReadOnlyList<Page>> RunParallelAsync(
         IReadOnlyList<string> urls,
         int concurrency,
         CancellationToken ct = default)

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using WebScraper.Cli.App;
-using WebScraper.Cli.Configuration;
+using WebScraper.Cli.Util;
 
 namespace WebScraper.Cli.Tests;
 
@@ -24,7 +24,7 @@ public class ProgramTests
     public void CreateServiceProvider_ShouldReturnWorkingApplication()
     {
         // Arrange
-        var provider = ServiceProviderBuilder.CreateServiceProvider();
+        var provider = ServiceProviderUtils.CreateServiceProvider();
 
         // Act
         var app = provider.GetService<IApplication>();

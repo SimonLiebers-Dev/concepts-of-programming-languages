@@ -2,10 +2,10 @@ using System.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using WebScraper.Cli.Configuration;
 using WebScraper.Cli.Extensions;
+using WebScraper.Cli.Util;
 using WebScraper.Core.Fetcher;
 using WebScraper.Core.Models;
 using WebScraper.Core.Scraping;
-using WebScraper.Core.Util;
 
 namespace WebScraper.Cli.App;
 
@@ -55,7 +55,7 @@ internal class Application : IApplication
         {
             urls = await FileUtils.GetUrlsFromFileAsync(config.UrlsFile).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             Console.WriteLine($"URLs could not be loaded from {config.UrlsFile}. Please check your json file.");
             return;
@@ -112,8 +112,8 @@ internal class Application : IApplication
     {
         Console.WriteLine($"📄  URLs File: {config.UrlsFile} ({urlCount} urls loaded)");
         Console.WriteLine($"💾  Results Directory: {config.ResultsDirectory}/");
-        Console.WriteLine($"⚙️  Concurrency: {config.Concurrency}");
-        Console.WriteLine($"⏱️  HTTP Timeout (s): {config.HttpTimeoutSeconds}");
+        Console.WriteLine($"⚙️   Concurrency: {config.Concurrency}");
+        Console.WriteLine($"⏱️   HTTP Timeout (s): {config.HttpTimeoutSeconds}");
 
         var userAgent = config.UserAgent;
         if (userAgent.Length > 80)
@@ -121,7 +121,7 @@ internal class Application : IApplication
             userAgent = $"{userAgent[..80]}...";
         }
 
-        Console.WriteLine($"🕸️  User-Agent: {userAgent}");
+        Console.WriteLine($"🕸   User-Agent: {userAgent}");
     }
 
     private async Task<IReadOnlyList<Page>> RunSequentialAsync(IReadOnlyList<string> urls, CancellationToken ct)

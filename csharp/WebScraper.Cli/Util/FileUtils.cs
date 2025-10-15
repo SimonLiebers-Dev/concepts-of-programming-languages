@@ -1,7 +1,7 @@
 using System.Text.Json;
 using WebScraper.Core.Models;
 
-namespace WebScraper.Core.Util;
+namespace WebScraper.Cli.Util;
 
 /// <summary>
 /// Provides helper methods for reading configuration files and saving scraper results.

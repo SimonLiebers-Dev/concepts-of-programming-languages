@@ -13,7 +13,7 @@ namespace WebScraper.Core.Scraping;
 /// This abstract base class encapsulates common behaviors for all scrape runners,
 /// such as progress rendering lifecycle management and tracker updates.
 /// </remarks>
-public abstract class BaseScrapeRunner
+public abstract class BaseScrapeRunner : IScrapeRunner
 {
     /// <summary>
     /// Logger
@@ -81,4 +81,13 @@ public abstract class BaseScrapeRunner
 
         return page;
     }
+
+
+    /// <inheritdoc />
+    public abstract Task<IReadOnlyList<Page>> RunSequentialAsync(IReadOnlyList<string> urls,
+        CancellationToken ct = default);
+
+    /// <inheritdoc />
+    public abstract Task<IReadOnlyList<Page>> RunParallelAsync(IReadOnlyList<string> urls, int concurrency,
+        CancellationToken ct = default);
 }
