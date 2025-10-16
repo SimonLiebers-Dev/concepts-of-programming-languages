@@ -30,16 +30,6 @@ public class SemaphoreScrapeRunner : BaseScrapeRunner
     }
 
     /// <summary>
-    /// Runs the scraper sequentially, scraping each URL one after another while updating the progress display.
-    /// </summary>
-    public override async Task<IReadOnlyList<Page>> RunSequentialAsync(
-        IReadOnlyList<string> urls,
-        CancellationToken ct = default)
-    {
-        return await RunParallelAsync(urls, 0, ct);
-    }
-
-    /// <summary>
     /// Runs the scraper concurrently using a configurable worker pool.
     /// </summary>
     /// <remarks>

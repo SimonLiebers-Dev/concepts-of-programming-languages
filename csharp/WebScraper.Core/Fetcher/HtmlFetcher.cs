@@ -14,6 +14,7 @@ public class HtmlFetcher(HttpClient httpClient, ILogger<HtmlFetcher> logger) : I
         "Mobile/15E148 Safari/604.1";
 
     private string _userAgent = DefaultUserAgent;
+    private TimeSpan _timeout = TimeSpan.FromSeconds(10);
 
     /// <inheritdoc />
     public void SetUserAgent(string userAgent)
@@ -30,13 +31,14 @@ public class HtmlFetcher(HttpClient httpClient, ILogger<HtmlFetcher> logger) : I
     }
 
     /// <inheritdoc />
-    public void SetHttpTimeout(int httpTimeoutSeconds)
+    public void SetHttpTimeout(int httpTimeoutSeconds = 10)
     {
-        // Fallback to 30 seconds if value is not bigger than 0
+        // Fallback to 10 seconds if value is not bigger than 0
         if (httpTimeoutSeconds <= 0)
-            httpTimeoutSeconds = 30;
+            httpTimeoutSeconds = 10;
 
-        httpClient.Timeout = TimeSpan.FromSeconds(httpTimeoutSeconds);
+        _timeout = TimeSpan.FromSeconds(httpTimeoutSeconds);
+
         logger.LogInformation("HTTP timeout set to {TimeoutSeconds} seconds.", httpTimeoutSeconds);
     }
 
@@ -53,12 +55,17 @@ public class HtmlFetcher(HttpClient httpClient, ILogger<HtmlFetcher> logger) : I
         {
             logger.LogDebug("Fetching {Url} ...", url);
 
+            // Set timeout to configured time span
+            httpClient.Timeout = _timeout;
+            
+            // Send request and await response
             using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead, ct)
                 .ConfigureAwait(false);
 
+            
             if (!response.IsSuccessStatusCode)
             {
-                var msg = $"Unexpected status {(int)response.StatusCode} {response.ReasonPhrase ?? ""}";
+                var msg = $"{(int)response.StatusCode} {response.ReasonPhrase ?? ""}";
                 logger.LogWarning("{Url} -> {StatusCode} {Reason}", url, (int)response.StatusCode,
                     response.ReasonPhrase);
                 throw new HttpRequestException(msg);
@@ -66,6 +73,7 @@ public class HtmlFetcher(HttpClient httpClient, ILogger<HtmlFetcher> logger) : I
 
             var html = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             logger.LogDebug("{Url} fetched successfully ({Length} chars)", url, html.Length);
+
             return html;
         }
         catch (TaskCanceledException) when (ct.IsCancellationRequested)

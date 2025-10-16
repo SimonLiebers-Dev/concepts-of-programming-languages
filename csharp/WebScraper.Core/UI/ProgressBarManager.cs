@@ -1,5 +1,7 @@
 using System.Collections.Concurrent;
 using Spectre.Console;
+using System.Text.RegularExpressions;
+using WebScraper.Core.Extensions;
 
 namespace WebScraper.Core.UI;
 
@@ -45,7 +47,7 @@ internal class ProgressBarManager : IProgressBarManager
             .HideCompleted(false)
             .Columns(
                 new TaskDescriptionColumn { Alignment = Justify.Left },
-                new ProgressBarColumn(),
+                new ProgressBarColumn() { Width = 25 },
                 new PercentageColumn(),
                 new ElapsedTimeColumn
                 {
@@ -88,7 +90,8 @@ internal class ProgressBarManager : IProgressBarManager
         if (Context is null)
             throw new InvalidOperationException("Renderer not started. Call StartRendering() first.");
 
-        var task = Context.AddTask($"[yellow]Fetching {url}[/]", autoStart: true, maxValue: maxValue);
+        var task = Context.AddTask(ProgressBarExtensions.GetDescription("Fetching", "yellow", url),
+            autoStart: true, maxValue: maxValue);
         _tasks.Add(task);
 
         return task;

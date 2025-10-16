@@ -3,8 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using WebScraper.Cli.App;
 using WebScraper.Core.DependencyInjection;
-using WebScraper.Core.Fetcher;
-using WebScraper.Core.Parser;
 using WebScraper.Core.Scraping;
 
 namespace WebScraper.Cli.Util;
@@ -62,7 +60,7 @@ public static class ServiceProviderUtils
             });
         }
 
-        // Add web scraper core with semaphore runner
+        // Add web scraper core with parallel runner
         services.AddWebScraperCore<ParallelScrapeRunner>();
 
         // Register main application

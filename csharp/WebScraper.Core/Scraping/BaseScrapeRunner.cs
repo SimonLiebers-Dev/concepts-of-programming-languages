@@ -84,8 +84,8 @@ public abstract class BaseScrapeRunner : IScrapeRunner
 
 
     /// <inheritdoc />
-    public abstract Task<IReadOnlyList<Page>> RunSequentialAsync(IReadOnlyList<string> urls,
-        CancellationToken ct = default);
+    public Task<IReadOnlyList<Page>> RunSequentialAsync(IReadOnlyList<string> urls,
+        CancellationToken ct = default) => RunParallelAsync(urls, 1, ct);
 
     /// <inheritdoc />
     public abstract Task<IReadOnlyList<Page>> RunParallelAsync(IReadOnlyList<string> urls, int concurrency,

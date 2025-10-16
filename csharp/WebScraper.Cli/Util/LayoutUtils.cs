@@ -1,3 +1,5 @@
+using WebScraper.Core.Extensions;
+
 namespace WebScraper.Cli.Util;
 
 /// <summary>
@@ -30,10 +32,10 @@ public static class LayoutUtils
     /// </summary>
     private static readonly string[] InfoLines =
     [
-        "📦  Parallel Web Scraper (CLI Tool)",
-        "👨‍💻  Developer: Simon Liebers",
-        "🌐  GitHub: https://github.com/SimonLiebers-Dev/concepts-of-programming-languages",
-        "🧠  Built with: C# (.NET 9)"
+        CreateIconAndTextString("Parallel Web Scraper (CLI Tool)", "📦"),
+        CreateIconAndTextString("Developer: Simon Liebers", "👨‍💻"),
+        CreateIconAndTextString("GitHub: https://github.com/SimonLiebers-Dev/concepts-of-programming-languages", "🌐"),
+        CreateIconAndTextString("Built with: C# (.NET 9)", "🧠")
     ];
 
     /// <summary>
@@ -67,5 +69,17 @@ public static class LayoutUtils
     {
         var line = string.Concat(Enumerable.Repeat('─', width));
         Console.WriteLine(line);
+    }
+
+    /// <summary>
+    /// Creates pattern with icon and text to ensure the distance between
+    /// icon and text is always the same
+    /// </summary>
+    /// <param name="text">Text to be printed</param>
+    /// <param name="icon">Icon to be used before the text</param>
+    /// <returns>Formatted string including icon and text</returns>
+    public static string CreateIconAndTextString(string text, string icon)
+    {
+        return $"{icon.PadDisplayRight(4)}{text}";
     }
 }

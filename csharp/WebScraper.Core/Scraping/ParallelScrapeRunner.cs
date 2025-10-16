@@ -20,22 +20,6 @@ public class ParallelScrapeRunner(
     : BaseScrapeRunner(scraper, logger, progressBarManager)
 {
     /// <summary>
-    /// Executes a sequential scraping process by delegating to
-    /// <see cref="RunParallelAsync"/> with a concurrency level of 1.
-    /// </summary>
-    /// <param name="urls">A collection of URLs to scrape.</param>
-    /// <param name="ct">A <see cref="CancellationToken"/> to support graceful shutdown.</param>
-    /// <returns>
-    /// A task representing the asynchronous operation, returning a list of <see cref="Page"/> results.
-    /// </returns>
-    public override async Task<IReadOnlyList<Page>> RunSequentialAsync(IReadOnlyList<string> urls,
-        CancellationToken ct = default)
-    {
-        // Sequential mode is just parallel mode limited to a single worker.
-        return await RunParallelAsync(urls, 1, ct);
-    }
-
-    /// <summary>
     /// Executes the scraping process in parallel using Parallel.ForEachAsync.
     /// </summary>
     /// <param name="urls">A collection of URLs to scrape.</param>

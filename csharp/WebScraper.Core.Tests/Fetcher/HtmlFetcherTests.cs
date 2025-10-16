@@ -61,7 +61,7 @@ public class HtmlFetcherTests
 
         // Act + Assert
         var ex = Assert.ThrowsAsync<HttpRequestException>(async () => await fetcher.FetchAsync(url));
-        Assert.That(ex!.Message, Does.Contain("Unexpected status 404"));
+        Assert.That(ex!.Message, Does.Contain("404 Not Found"));
     }
 
     [Test]

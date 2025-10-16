@@ -1,8 +1,11 @@
 using System.Diagnostics;
+using System.Globalization;
 using Microsoft.Extensions.Configuration;
+using Spectre.Console;
 using WebScraper.Cli.Configuration;
 using WebScraper.Cli.Extensions;
 using WebScraper.Cli.Util;
+using WebScraper.Core.Extensions;
 using WebScraper.Core.Fetcher;
 using WebScraper.Core.Models;
 using WebScraper.Core.Scraping;
@@ -67,8 +70,9 @@ internal class Application : IApplication
         // Print warning that no urls have been configured
         if (urls.Count == 0)
         {
-            Console.WriteLine("⚠️  No URLs configured.");
-            Console.WriteLine($"📄  Please add URLs to '{config.UrlsFile}' before running the scraper.");
+            LayoutUtils.PrintSeparator();
+            Console.WriteLine(LayoutUtils.CreateIconAndTextString(
+                $"No URLs configured. Please add URLs to '{config.UrlsFile}' before running the scraper.", "🟡"));
             return;
         }
 
@@ -103,17 +107,21 @@ internal class Application : IApplication
                 return parsed;
 
             LayoutUtils.PrintSeparator();
-            Console.WriteLine("❌ Invalid input. Please enter 1 or 2.");
+            Console.WriteLine(LayoutUtils.CreateIconAndTextString("Invalid input. Please enter 1 or 2.", "🚫"));
             LayoutUtils.PrintSeparator();
         }
     }
 
     private static void PrintConfig(ScrapeConfig config, int urlCount)
     {
-        Console.WriteLine($"📄  URLs File: {config.UrlsFile} ({urlCount} urls loaded)");
-        Console.WriteLine($"💾  Results Directory: {config.ResultsDirectory}/");
-        Console.WriteLine($"⚙️   Concurrency: {config.Concurrency}");
-        Console.WriteLine($"⏱️   HTTP Timeout (s): {config.HttpTimeoutSeconds}");
+        Console.WriteLine(
+            LayoutUtils.CreateIconAndTextString($"URLs File: {config.UrlsFile} ({urlCount} urls loaded)", "📄"));
+        Console.WriteLine(
+            LayoutUtils.CreateIconAndTextString($"Results Directory: {config.ResultsDirectory}/", "💾"));
+        Console.WriteLine(
+            LayoutUtils.CreateIconAndTextString($"Concurrency: {config.Concurrency}", "🔧"));
+        Console.WriteLine(
+            LayoutUtils.CreateIconAndTextString($"HTTP Timeout (s): {config.HttpTimeoutSeconds}", "🕐"));
 
         var userAgent = config.UserAgent;
         if (userAgent.Length > 80)
@@ -121,12 +129,13 @@ internal class Application : IApplication
             userAgent = $"{userAgent[..80]}...";
         }
 
-        Console.WriteLine($"🕸   User-Agent: {userAgent}");
+        Console.WriteLine(
+            LayoutUtils.CreateIconAndTextString($"User-Agent: {userAgent}", "🌐"));
     }
 
     private async Task<IReadOnlyList<Page>> RunSequentialAsync(IReadOnlyList<string> urls, CancellationToken ct)
     {
-        Console.WriteLine("🚀 Running sequential scraper...");
+        Console.WriteLine(LayoutUtils.CreateIconAndTextString("Running sequential scraper...", "🚀"));
         LayoutUtils.PrintSeparator();
         return await _runner.RunSequentialAsync(urls, ct).ConfigureAwait(false);
     }
@@ -134,7 +143,7 @@ internal class Application : IApplication
     private async Task<IReadOnlyList<Page>> RunParallelAsync(IReadOnlyList<string> urls, ScrapeConfig config,
         CancellationToken ct)
     {
-        Console.WriteLine("🚀 Running parallel scraper...");
+        Console.WriteLine(LayoutUtils.CreateIconAndTextString("Running parallel scraper...", "🚀"));
         LayoutUtils.PrintSeparator();
         return await _runner.RunParallelAsync(urls, config.Concurrency, ct).ConfigureAwait(false);
     }
@@ -142,15 +151,17 @@ internal class Application : IApplication
     private static void PrintSummary(IReadOnlyList<Page> pages, TimeSpan duration)
     {
         var successCount = pages.Count(p => p.Success);
-        var failedCount = pages.Count - successCount;
-        Console.WriteLine($"✅ {successCount} successful | ❌ {failedCount} failed | ⏱️ Duration: {duration}");
+        Console.WriteLine(
+            $"{LayoutUtils.CreateIconAndTextString($"{successCount}/{pages.Count} successful", "👉")} | " +
+            $"{LayoutUtils.CreateIconAndTextString($"Duration: {duration.ToFormattedString(CultureInfo.CurrentUICulture)}", "⏱️")}");
     }
 
     private static async Task PromptSaveResultsAsync(IReadOnlyList<Page> pages, ScrapeConfig config)
     {
         while (true)
         {
-            Console.Write("💾 Do you want to save the results to a file? (y/n): ");
+            Console.Write(
+                LayoutUtils.CreateIconAndTextString("Do you want to save the results to a file? (y/n): ", "💾"));
             var input = Console.ReadLine()?.Trim().ToLowerInvariant();
 
             switch (input)
@@ -161,17 +172,18 @@ internal class Application : IApplication
                         var filename = await FileUtils
                             .SaveResultsToFileAsync(pages, config.ResultsDirectory, DateTimeOffset.UtcNow)
                             .ConfigureAwait(false);
-                        Console.WriteLine($"✅ Results saved to: {filename}");
+                        Console.WriteLine(LayoutUtils.CreateIconAndTextString($"Results saved to: {filename}", "👉"));
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"❌ Error saving file: {ex.Message}");
+                        Console.WriteLine(
+                            LayoutUtils.CreateIconAndTextString($"Error saving file: {ex.Message}", "🚫"));
                     }
 
                     return;
 
                 case "n":
-                    Console.WriteLine("ℹ️  Results not saved.");
+                    Console.WriteLine(LayoutUtils.CreateIconAndTextString("Results not saved.", "ℹ️"));
                     return;
 
                 default:
