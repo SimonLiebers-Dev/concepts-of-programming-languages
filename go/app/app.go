@@ -137,8 +137,8 @@ func promptSaveResults(fs util.FileSystem, tp util.TimeProvider, scrapeConfig *c
 func printConfig(cfg *config.ScrapeConfig, urlCount int) {
 	fmt.Printf("📄  URLs File: %s (%d urls loaded)\n", cfg.UrlsFile, urlCount)
 	fmt.Printf("💾  Results Directory: %s/\n", cfg.ResultsDirectory)
-	fmt.Printf("⚙️  Concurrency: %d\n", cfg.Concurrency)
-	fmt.Printf("⏱️  HTTP Timeout (s): %d\n", cfg.HttpTimeoutSeconds)
+	fmt.Printf("⚙️   Concurrency: %d\n", cfg.Concurrency)
+	fmt.Printf("⏱️   HTTP Timeout (s): %d\n", cfg.HttpTimeoutSeconds)
 
 	// Truncate the User-Agent if it's longer than 80 characters
 	userAgent := cfg.UserAgent
@@ -146,7 +146,7 @@ func printConfig(cfg *config.ScrapeConfig, urlCount int) {
 		userAgent = userAgent[:80] + "..."
 	}
 
-	fmt.Printf("🕸️  User-Agent: %s\n", userAgent)
+	fmt.Printf("🕸️   User-Agent: %s\n", userAgent)
 }
 
 func loadConfig() *config.ScrapeConfig {

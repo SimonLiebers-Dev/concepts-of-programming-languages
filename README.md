@@ -11,12 +11,10 @@
    - [Architecture](#architecture-1)    
    - [Setup](#setup-1)  
    - [Configuration](#configuration-1)  
-   - [Running](#running-1)  
    - [Testing](#testing-1)  
 3. [Go Implementation](#go-implementation)    
    - [Setup](#setup-2)   
    - [Configuration](#configuration-2)  
-   - [Running](#running-2)
    - [Testing](#testing-2)  
 4. [License](#license)
 
@@ -69,14 +67,14 @@ This separation of concerns allows the scraping logic to be reused.
 | Category | Key Types | Description |
 |-----------|------------|-------------|
 | **Scraping Logic** | [`IScraper`](csharp/WebScraper.Core/Scraping/IScraper.cs), [`DefaultScraper`](csharp/WebScraper.Core/Scraping/DefaultScraper.cs) | Defines the scraping workflow. The default implementation combines a `IHtmlFetcher` and `IHtmlParser` to extract metadata from HTML pages. |
-| **Fetching** | `IHtmlFetcher`, `HtmlFetcher` | Handles HTTP requests with configurable timeout and user agent. |
-| **Parsing** | `IHtmlParser`, `HtmlParser` | Extracts the title, links, and images from the downloaded HTML. |
-| **Scrape Runners** | `IScrapeRunner`, `ParallelScrapeRunner`, `SemaphoreScrapeRunner` | Execute scraping sequentially or in parallel, providing interchangeable parallelization strategies. |
-| **Progress Management** | `IProgressBarManager`, `ProgressBarManager` | Provides console-based progress visualization and manages concurrent progress bars for each URL. |
-| **Models** | `Page`, `ParserResult` | Immutable records representing scraping results and parsed data. |
-| **Dependency Injection** | `ServiceCollectionExtensions` | Registers all core services using a single generic extension method `AddWebScraperCore<TRunner>()`. |
+| **Fetching** | [`IHtmlFetcher`](csharp/WebScraper.Core/Fetcher/IHtmlFetcher.cs), [`HtmlFetcher`](csharp/WebScraper.Core/Fetcher/HtmlFetcher.cs) | Handles HTTP requests with configurable timeout and user agent. |
+| **Parsing** | [`IHtmlParser`](csharp/WebScraper.Core/Parser/IHtmlParser.cs), [`HtmlParser`](csharp/WebScraper.Core/Parser/HtmlParser.cs) | Extracts the title, links, and images from the downloaded HTML. |
+| **Scrape Runners** | [`IScrapeRunner`](csharp/WebScraper.Core/Scraping/IScrapeRunner.cs), [`ParallelScrapeRunner`](csharp/WebScraper.Core/Scraping/ParallelScrapeRunner.cs), [`SemaphoreScrapeRunner`](csharp/WebScraper.Core/Scraping/SemaphoreScrapeRunner.cs) | Execute scraping sequentially or in parallel, providing interchangeable parallelization strategies. |
+| **Progress Management** | [`IProgressBarManager`](csharp/WebScraper.Core/UI/IProgressBarManager.cs), [`ProgressBarManager`](csharp/WebScraper.Core/UI/ProgressBarManager.cs) | Provides console-based progress visualization and manages concurrent progress bars for each URL. |
+| **Models** | [`Page`](csharp/WebScraper.Core/Models/Page.cs), [`ParserResult`](csharp/WebScraper.Core/Models/ParserResult.cs) | Immutable records representing scraping results and parsed data. |
+| **Dependency Injection** | [`ServiceCollectionExtensions`](csharp/WebScraper.Core/DependencyInjection/ServiceCollectionExtensions.cs) | Registers all core services using a single generic extension method `AddWebScraperCore<TRunner>()`. |
 
-#### 💻 WebScraper.Cli — Console Frontend
+#### WebScraper.Cli
 
 `WebScraper.Cli` serves as the interactive entry point for the user. It provides configuration loading, mode selection, progress display, and result output.
 
@@ -95,11 +93,11 @@ The result is a clean, maintainable, and extensible architecture demonstrating m
 
 Setting up the C# implementation requires the .NET 9 SDK. The project uses the built-in .NET CLI tools and has no external dependencies beyond those available via NuGet.
 
-#### 🧰 Prerequisites
+#### Prerequisites
 - [.NET 9 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
 - A terminal or IDE such as Visual Studio Code or Rider
 
-#### 🧱 Dependency Injection
+#### Dependency Injection
 
 All services are registered in [`ServiceProviderUtils.cs`](csharp/WebScraper.Cli/Util/ServiceProviderUtils.cs) using the extension method provided by the core library:
 
@@ -109,7 +107,7 @@ services.AddWebScraperCore<ParallelScrapeRunner>();
 
 This setup allows easy swapping of the runner by changing the generic parameter of [`AddWebScraperCore<>`](csharp/WebScraper.Core/DependencyInjection/ServiceCollectionExtensions.cs). The library offers two different implementations of the runner ([`ParallelScrapeRunner`](csharp/WebScraper.Core/Scraping/ParallelScrapeRunner.cs) and [`SemaphoreScrapeRunner`](csharp/WebScraper.Core/Scraping/SemaphoreScrapeRunner.cs)). You can use one of these implementations or provide a own implementation.
 
-#### 📦 Installation & Build
+#### Build & Run
 
 Clone the repository:
 
@@ -127,6 +125,19 @@ dotnet build
 dotnet run
 ```
 
+The application will:
+1. Display an ASCII banner and configuration summary.
+2. Load all URLs from the provided JSON file.
+3. Prompt for the scraping mode (sequential or parallel).
+4. Execute the selected mode with live progress bars for each URL.
+5. Summarize results and optionally save them to an output file.
+
+The results are stored in the configured `ResultsDirectory` with a timestamped filename (e.g., `scrape-results-1760563678815.json`).
+
+#### Example Output
+
+![C# Cli](.pics/csharp_output.png)
+
 ### ⚙️ Configuration <a name="configuration-1"></a>
 
 The C# scraper uses two configuration files — `appsettings.json` and `urls.json` — to define runtime behavior and scraping targets. This approach makes the scraper highly adaptable.
@@ -138,22 +149,14 @@ This file contains global scraper settings such as concurrency level, timeouts, 
 ```json
 {
   "Scraper": {
-    "UrlsFile": "urls.json",
-    "ResultsDirectory": "output",
-    "Concurrency": 5,
-    "HttpTimeoutSeconds": 10,
-    "UserAgent": "ParallelScraper/1.0"
+    "UrlsFile": "urls.json",            // Path to the JSON file containing URLs to scrape
+    "ResultsDirectory": "output",       // Directory where the results JSON file will be saved
+    "Concurrency": 5,                   // Maximum number of concurrent scraping tasks
+    "HttpTimeoutSeconds": 10,           // Timeout (in seconds) for HTTP requests
+    "UserAgent": "ParallelScraper/1.0"  // Custom User-Agent string used for requests
   }
 }
 ```
-
-| Key | Description |
-|------|--------------|
-| **UrlsFile** | Path to the JSON file containing URLs to scrape. |
-| **ResultsDirectory** | Directory where the results JSON file will be saved. |
-| **Concurrency** | Maximum number of concurrent scraping tasks. |
-| **HttpTimeoutSeconds** | Timeout (in seconds) for HTTP requests. |
-| **UserAgent** | Custom User-Agent string used for requests. |
 
 Configuration is automatically loaded and validated via [`ScrapeConfig`](csharp/WebScraper.Cli/Configuration/ScrapeConfig.cs) and [`ConfigurationExtensions`](csharp/WebScraper.Cli/Extensions/ConfigurationExtensions.cs):
 
@@ -171,14 +174,116 @@ Defines the list of target URLs to scrape. Each URL is processed individually by
 
 ```json
 [
-  "https://example.com",
-  "https://news.ycombinator.com",
+  "https://go.dev",
   "https://dotnet.microsoft.com"
 ]
 ```
 
 The scraper reads this file through [`FileUtils.GetUrlsFromFileAsync()`](csharp/WebScraper.Cli/Util/FileUtils.cs).
 
-#### 🧪 Validation
+#### Validation
 
 Before execution, the configuration is validated by calling `ScrapeConfig.Validate()`. This ensures that all paths exist, concurrency levels are positive, etc. If validation fails, the CLI provides an error message and aborts execution safely.
+
+### 🧪 Testing <a name="testing-1"></a>
+
+Testing in the C# implementation is organized into two independent projects to ensure a clear separation of concerns between the **core logic** and the **CLI layer**.
+
+| Test Project | Purpose |
+|---------------|----------|
+| [**WebScraper.Core.Tests**](csharp/WebScraper.Core.Tests/WebScraper.Core.Tests.csproj) | Focuses on verifying the functionality of the reusable library components such as scraping, fetching, parsing, progress tracking, and concurrency handling. This ensures the core engine behaves correctly under different configurations and concurrency models. |
+| [**WebScraper.Cli.Tests**](csharp/WebScraper.Cli.Tests/WebScraper.Cli.Tests.csproj) | Tests the console application layer, including configuration loading, integration with the core library, and basic flow control. It validates that the CLI correctly orchestrates services, processes user input, and handles output. |
+
+Both test projects are designed to run independently, allowing developers to validate either the core library or the CLI in isolation. Together, they provide full coverage of the scraper’s runtime behavior.
+
+All tests can be executed from the `csharp` directory with a single command:
+
+```bash
+dotnet test
+```
+
+This command automatically discovers and runs tests from both projects. Tests are automatically executed in the CI workflow via [`csharp.yml`](.github/workflows/csharp.yml).
+
+## Go Implementation <a name="go-implementation"></a>
+
+The **Go implementation** serves as a lightweight equivalent of the C# scraper and focuses primarily on showcasing **Go’s concurrency model** using goroutines and channels. While architecturally simpler, it preserves the same external behavior and configuration-driven execution model as the C# version.
+
+### ⚙️ Setup <a name="setup-2"></a>
+
+#### Prerequisites
+- [Go 1.25+](https://go.dev/dl/)
+- Terminal or IDE with Go module support (VS Code, GoLand, etc.)
+
+#### Installation
+
+Clone the repository and navigate to the Go project directory:
+
+```bash
+git clone https://github.com/SimonLiebers-Dev/concepts-of-programming-languages.git
+cd concepts-of-programming-languages/go
+
+# Download dependencies
+go mod tidy
+```
+
+Build and run the scraper:
+
+```bash
+go run .
+```
+
+By default, the scraper expects configuration files (`config.json` and `urls.json`) to be located in the same directory as `main.go`.
+
+#### Example Output
+
+![C# Cli](.pics/go_output.png)
+
+### ⚙️ Configuration <a name="configuration-2"></a>
+
+The Go scraper reads its configuration from two JSON files: `config.json` and `urls.json`. Both mirror the structure and intent of the C# equivalents.
+
+#### Configuration file: [config.json](go/config.json)
+
+```json
+{
+  "urlsFile": "urls.json",            // Path to the JSON file containing URLs to scrape
+  "resultsDirectory": "output",       // Directory where the results JSON file will be saved
+  "concurrency": 5,                   // Maximum number of concurrent scraping tasks
+  "httpTimeoutSeconds": 10,           // Timeout (in seconds) for HTTP requests
+  "userAgent": "ParallelScraper/1.0"  // Custom User-Agent string used for requests
+}
+```
+
+#### Url file - Default: [urls.json](go/urls.json)
+
+```json
+[
+  "https://go.dev",
+  "https://dotnet.microsoft.com"
+]
+```
+
+### 🧪 Testing <a name="testing-2"></a>
+
+The Go implementation includes lightweight tests that verify correctness and scraping logic.
+
+Run all tests with:
+
+```bash
+go test ./...
+```
+
+This command executes all tests within the `go` module, providing a summary of passed and failed tests.
+Like the C# implementation, tests are also automatically executed in the CI workflow via [`go.yml`](.github/workflows/go.yml).
+
+## 🔗 References
+
+- [Goroutines and Channels (Go Blog)](https://go.dev/doc/effective_go#goroutines)
+- [Worker Pool Pattern in Go](https://gobyexample.com/worker-pools)
+- [Asynchronous Programming with async and await (Microsoft Docs)](https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/async/)
+- [Dependency Injection in .NET](https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection)
+- [PlantUML Documentation](https://plantuml.com/class-diagram)
+
+## 🪪 License <a name="license"></a>
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)

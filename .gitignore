@@ -5,3 +5,4 @@
 bin/
 obj/
 /csharp/WebScraper.Cli/output
+/go/output

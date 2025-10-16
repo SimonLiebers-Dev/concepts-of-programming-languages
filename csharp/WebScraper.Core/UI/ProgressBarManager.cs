@@ -47,7 +47,10 @@ internal class ProgressBarManager : IProgressBarManager
                 new TaskDescriptionColumn { Alignment = Justify.Left },
                 new ProgressBarColumn(),
                 new PercentageColumn(),
-                new ElapsedTimeColumn(),
+                new ElapsedTimeColumn
+                {
+                    Style = Color.Aquamarine1
+                },
                 new SpinnerColumn());
     }
 
@@ -78,13 +81,13 @@ internal class ProgressBarManager : IProgressBarManager
         // Wait until ProgressContext is available
         Context = await _ctxReady!.Task.ConfigureAwait(false);
     }
-    
+
     /// <inheritdoc />
     public ProgressTask CreateProgressBar(string url, int maxValue)
     {
         if (Context is null)
             throw new InvalidOperationException("Renderer not started. Call StartRendering() first.");
-        
+
         var task = Context.AddTask($"[yellow]Fetching {url}[/]", autoStart: true, maxValue: maxValue);
         _tasks.Add(task);
 
