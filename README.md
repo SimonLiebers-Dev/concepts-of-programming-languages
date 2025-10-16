@@ -4,7 +4,7 @@
 
 > This project was built as part of the course *Concepts of Programming Languages* at TH Rosenheim.
 
-## 📚 Table of Contents
+## Table of Contents
 
 1. [Overview](#overview)  
 2. [C# Implementation (.NET 9)](#csharp-implementation)  
@@ -18,13 +18,13 @@
    - [Testing](#testing-2)  
 4. [License](#license)
 
-## 🧩 Overview <a name="overview"></a>
+## Overview <a name="overview"></a>
 
 The **Parallel Web Scraper** demonstrates two implementations of a parallel web scraping application — one in **C# (.NET 9)** and one in **Go 1.25** — to explore and compare the concepts of **parallel programming**, **asynchronous execution**, and **configuration-driven architectures** across different languages.
 
 The main focus of this project lies on the **C# implementation**, which serves as a fully featured, extensible, and modular architecture. The **Go version** replicates its functionality to serve as a direct comparison for evaluating concurrency programming in both languages.
 
-### ✨ Features
+### Features
 
 - **Parallel Scraping**  
   Executes multiple HTTP requests concurrently. The C# version offers two different strategies for parallel execution. Both strategies implement the same interface, allowing them to be easily interchanged through a generic setup method. The Go implementation leverages goroutines and channels for synchronization, following the [worker pool](https://gobyexample.com/worker-pools) pattern.
@@ -49,7 +49,7 @@ The main focus of this project lies on the **C# implementation**, which serves a
 
 ## C# Implementation <a name="csharp-implementation"></a>
 
-### 🏗️ Architecture <a name="architecture-1"></a>
+### Architecture <a name="architecture-1"></a>
 
 The C# implementation of the **Parallel Web Scraper** is divided into two independent projects:
 
@@ -58,7 +58,7 @@ The C# implementation of the **Parallel Web Scraper** is divided into two indepe
 
 This separation of concerns allows the scraping logic to be reused.
 
-#### 🧩 WebScraper.Core
+#### WebScraper.Core
 
 [`WebScraper.Core`](csharp/WebScraper.Core/WebScraper.Core.csproj) defines all reusable and testable components for scraping websites. It provides abstractions for fetching, parsing, running concurrent tasks, and reporting progress.
 
@@ -92,7 +92,7 @@ While these links exist in the actual implementation, they would clutter the vis
 
 The result is a clean, maintainable, and extensible architecture demonstrating modern .NET design patterns for parallel programming.
 
-### ⚙️ Setup <a name="setup-1"></a>
+### Setup <a name="setup-1"></a>
 
 Setting up the C# implementation requires the .NET 9 SDK. The project uses the built-in .NET CLI tools and has no external dependencies beyond those available via NuGet.
 
@@ -141,7 +141,7 @@ The results are stored in the configured `ResultsDirectory` with a timestamped f
 
 ![C# Cli](.pics/csharp_output.png)
 
-### ⚙️ Configuration <a name="configuration-1"></a>
+### Configuration <a name="configuration-1"></a>
 
 The C# scraper uses two configuration files — `appsettings.json` and `urls.json` — to define runtime behavior and scraping targets. This approach makes the scraper highly adaptable.
 
@@ -188,7 +188,7 @@ The scraper reads this file through [`FileUtils.GetUrlsFromFileAsync()`](csharp/
 
 Before execution, the configuration is validated by calling `ScrapeConfig.Validate()`. This ensures that all paths exist, concurrency levels are positive, etc. If validation fails, the CLI provides an error message and aborts execution safely.
 
-### 🧪 Testing <a name="testing-1"></a>
+### Testing <a name="testing-1"></a>
 
 Testing in the C# implementation is organized into two independent projects to ensure a clear separation of concerns between the **core logic** and the **CLI layer**.
 
@@ -211,7 +211,7 @@ This command automatically discovers and runs tests from both projects. Tests ar
 
 The **Go implementation** serves as a lightweight equivalent of the C# scraper and focuses primarily on showcasing **Go’s concurrency model** using goroutines and channels. While architecturally simpler, it preserves the same external behavior and configuration-driven execution model as the C# version.
 
-### ⚙️ Setup <a name="setup-2"></a>
+### Setup <a name="setup-2"></a>
 
 #### Prerequisites
 - [Go 1.25+](https://go.dev/dl/)
@@ -241,7 +241,7 @@ By default, the scraper expects configuration files (`config.json` and `urls.jso
 
 ![C# Cli](.pics/go_output.png)
 
-### ⚙️ Configuration <a name="configuration-2"></a>
+### Configuration <a name="configuration-2"></a>
 
 The Go scraper reads its configuration from two JSON files: `config.json` and `urls.json`. Both mirror the structure and intent of the C# equivalents.
 
@@ -266,7 +266,7 @@ The Go scraper reads its configuration from two JSON files: `config.json` and `u
 ]
 ```
 
-### 🧪 Testing <a name="testing-2"></a>
+### Testing <a name="testing-2"></a>
 
 The Go implementation includes lightweight tests that verify correctness and scraping logic.
 
@@ -279,7 +279,7 @@ go test ./...
 This command executes all tests within the `go` module, providing a summary of passed and failed tests.
 Like the C# implementation, tests are also automatically executed in the CI workflow via [`go.yml`](.github/workflows/go.yml).
 
-## 🔗 References
+## References
 
 - [Goroutines and Channels (Go Blog)](https://go.dev/doc/effective_go#goroutines)
 - [Worker Pool Pattern in Go](https://gobyexample.com/worker-pools)
@@ -287,6 +287,6 @@ Like the C# implementation, tests are also automatically executed in the CI work
 - [Dependency Injection in .NET](https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection)
 - [PlantUML Documentation](https://plantuml.com/class-diagram)
 
-## 🪪 License <a name="license"></a>
+## License <a name="license"></a>
 
 The MIT License (MIT) - see [LICENSE](LICENSE) for more details
