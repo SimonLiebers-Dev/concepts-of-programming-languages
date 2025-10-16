@@ -64,6 +64,9 @@ This separation of concerns allows the scraping logic to be reused.
 
 ![Core Class Diagram](.pics/classes_core.png)
 
+> **Note:** The diagram intentionally omits explicit connections to the Page model and its related data flow.
+While these links exist in the actual implementation, they would clutter the visual representation and make the class relationships less clear. The focus of this diagram is to highlight the core architectural structure. It shows how the main components interact (scraping, fetching, parsing, and progress reporting) without overloading it with data dependencies.
+
 | Category | Key Types | Description |
 |-----------|------------|-------------|
 | **Scraping Logic** | [`IScraper`](csharp/WebScraper.Core/Scraping/IScraper.cs), [`DefaultScraper`](csharp/WebScraper.Core/Scraping/DefaultScraper.cs) | Defines the scraping workflow. The default implementation combines a `IHtmlFetcher` and `IHtmlParser` to extract metadata from HTML pages. |
