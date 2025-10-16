@@ -153,7 +153,7 @@ internal class Application : IApplication
         var successCount = pages.Count(p => p.Success);
         Console.WriteLine(
             $"{LayoutUtils.CreateIconAndTextString($"{successCount}/{pages.Count} successful", "👉")} | " +
-            $"{LayoutUtils.CreateIconAndTextString($"Duration: {duration.ToFormattedString(CultureInfo.CurrentUICulture)}", "⏱️")}");
+            $"{LayoutUtils.CreateIconAndTextString($"Duration: {duration.ToFormattedString(CultureInfo.CurrentUICulture)}", "🕐")}");
     }
 
     private static async Task PromptSaveResultsAsync(IReadOnlyList<Page> pages, ScrapeConfig config)

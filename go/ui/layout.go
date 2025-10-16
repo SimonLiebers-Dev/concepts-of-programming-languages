@@ -3,6 +3,8 @@ package ui
 import (
 	"fmt"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 // PrintHeader renders the app's ASCII header and metadata.
@@ -25,7 +27,7 @@ __          __  _     _____
 	}
 
 	// Print ASCII header
-	fmt.Println(asciiHeader)
+	color.Cyan(asciiHeader)
 
 	// Print metadata
 	for _, line := range info {

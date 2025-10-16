@@ -17,7 +17,7 @@ func NewProgressBarManager(numExpected int) *ProgressBarManager {
 	writer := progress.NewWriter()
 	writer.SetAutoStop(false)
 	writer.SetTrackerLength(25)
-	writer.SetMessageWidth(60)
+	writer.SetMessageWidth(76)
 	writer.SetTrackerPosition(progress.PositionRight)
 	writer.SetStyle(progress.StyleDefault)
 	writer.SetNumTrackersExpected(numExpected)

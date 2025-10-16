@@ -21,7 +21,6 @@ func RunSequential(ctx context.Context, urls []string, scraper Scraper) []*model
 
 		page, err := scraper.Scrape(ctx, url)
 		if err != nil {
-			tracker.UpdateMessage("Error: " + err.Error())
 			tracker.MarkAsErrored()
 		}
 
@@ -58,7 +57,6 @@ func RunParallel(ctx context.Context, urls []string, scraper Scraper, concurrenc
 
 				page, err := scraper.Scrape(ctx, url)
 				if err != nil {
-					tracker.UpdateMessage("Error: " + err.Error())
 					tracker.MarkAsErrored()
 				}
 

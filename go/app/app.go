@@ -49,7 +49,11 @@ func Run(ctx context.Context) error {
 
 	start := time.Now()
 	results := runScraper(ctx, choice, urls, cfg)
+
+	fmt.Println()
+
 	printSummary(results, time.Since(start))
+
 	ui.PrintSeparator()
 
 	promptSaveResults(fs, tp, cfg, results)
@@ -85,28 +89,24 @@ func runScraper(ctx context.Context, choice int, urls []string, scrapeConfig *co
 	case 1:
 		fmt.Println("🚀  Running sequential scraper...")
 		ui.PrintSeparator()
+		fmt.Println()
 		return core.RunSequential(ctx, urls, scraper)
 	default:
 		fmt.Println("🚀  Running parallel scraper...")
 		ui.PrintSeparator()
+		fmt.Println()
 		return core.RunParallel(ctx, urls, scraper, scrapeConfig.Concurrency)
 	}
 }
 
 func printSummary(pages []*models.Page, duration time.Duration) {
-	success, fail := 0, 0
+	successCount := 0
 	for _, p := range pages {
-		if p == nil {
-			fail++
-			continue
-		}
-		if p.Error != "" {
-			fail++
-		} else {
-			success++
+		if p.Success() {
+			successCount++
 		}
 	}
-	fmt.Printf("✅ %d successful | ❌ %d failed | ⏱️ Duration: %v\n", success, fail, duration)
+	fmt.Printf("👉 %d/%d successful | 🕐 Duration: %v\n", successCount, len(pages), duration)
 }
 
 func promptSaveResults(fs util.FileSystem, tp util.TimeProvider, scrapeConfig *config.ScrapeConfig, pages []*models.Page) {
@@ -120,13 +120,13 @@ func promptSaveResults(fs util.FileSystem, tp util.TimeProvider, scrapeConfig *c
 		case "y":
 			filename, err := util.SaveResultsToFile(fs, tp, scrapeConfig.ResultsDirectory, pages)
 			if err != nil {
-				fmt.Println("❌ Error saving file:", err)
+				fmt.Println("🚫  Error saving file:", err)
 			} else {
-				fmt.Println("✅ Results saved to:", filename)
+				fmt.Println("👉  Results saved to:", filename)
 			}
 			return
 		case "n":
-			fmt.Println("ℹ️  Results not saved.")
+			fmt.Println("👉  Results not saved.")
 			return
 		default:
 			fmt.Println("Please type 'y' or 'n'")
@@ -137,8 +137,8 @@ func promptSaveResults(fs util.FileSystem, tp util.TimeProvider, scrapeConfig *c
 func printConfig(cfg *config.ScrapeConfig, urlCount int) {
 	fmt.Printf("📄  URLs File: %s (%d urls loaded)\n", cfg.UrlsFile, urlCount)
 	fmt.Printf("💾  Results Directory: %s/\n", cfg.ResultsDirectory)
-	fmt.Printf("⚙️   Concurrency: %d\n", cfg.Concurrency)
-	fmt.Printf("⏱️   HTTP Timeout (s): %d\n", cfg.HttpTimeoutSeconds)
+	fmt.Printf("🔧  Concurrency: %d\n", cfg.Concurrency)
+	fmt.Printf("🕐  HTTP Timeout (s): %d\n", cfg.HttpTimeoutSeconds)
 
 	// Truncate the User-Agent if it's longer than 80 characters
 	userAgent := cfg.UserAgent
@@ -146,7 +146,7 @@ func printConfig(cfg *config.ScrapeConfig, urlCount int) {
 		userAgent = userAgent[:80] + "..."
 	}
 
-	fmt.Printf("🕸️   User-Agent: %s\n", userAgent)
+	fmt.Printf("🌐  User-Agent: %s\n", userAgent)
 }
 
 func loadConfig() *config.ScrapeConfig {
