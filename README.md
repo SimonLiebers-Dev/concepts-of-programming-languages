@@ -85,10 +85,10 @@ While these links exist in the actual implementation, they would clutter the vis
 
 | Category | Key Types | Description |
 |-----------|------------|-------------|
-| **Program & Bootstrap** | `Program`, `ServiceProviderUtils` | Entry point that initializes the DI container and launches the application. |
-| **Application Logic** | `Application`, `IApplication` | Orchestrates scraping sessions, handles user prompts, prints summaries, and manages flow control. |
-| **Configuration** | `ScrapeConfig`, `ConfigurationExtensions` | Loads and validates runtime configuration (concurrency, timeouts, directories, etc.). |
-| **Utilities** | `FileUtils`, `LayoutUtils` | Helper classes for file I/O and console formatting. |
+| **Program & Bootstrap** | [`Program`](csharp/WebScraper.Cli/Program.cs), [`ServiceProviderUtils`](csharp/WebScraper.Cli/Util/ServiceProviderUtils.cs) | Entry point that initializes the DI container and launches the application. |
+| **Application Logic** | [`Application`](csharp/WebScraper.Cli/App/Application.cs), [`IApplication`](csharp/WebScraper.Cli/App/IApplication.cs) | Orchestrates scraping sessions, handles user prompts, prints summaries, and manages flow control. |
+| **Configuration** | [`ScrapeConfig`](csharp/WebScraper.Cli/Configuration/ScrapeConfig.cs), [`ConfigurationExtensions`](csharp/WebScraper.Cli/Extensions/ConfigurationExtensions.cs) | Loads and validates runtime configuration (concurrency, timeouts, directories, etc.). |
+| **Utilities** | [`FileUtils`](csharp/WebScraper.Cli/Util/FileUtils.cs), [`LayoutUtils`](csharp/WebScraper.Cli/Util/LayoutUtils.cs) | Helper classes for file I/O and console formatting. |
 
 The result is a clean, maintainable, and extensible architecture demonstrating modern .NET design patterns for parallel programming.
 
@@ -289,4 +289,4 @@ Like the C# implementation, tests are also automatically executed in the CI work
 
 ## 🪪 License <a name="license"></a>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+The MIT License (MIT) - see [LICENSE](LICENSE) for more details
