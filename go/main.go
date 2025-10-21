@@ -12,6 +12,6 @@ func main() {
 	defer cancel()
 
 	if err := app.Run(ctx); err != nil {
-		log.Fatalf("❌ Application error: %v", err)
+		log.Fatalf("Application error: %v", err)
 	}
 }
