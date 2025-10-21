@@ -149,7 +149,7 @@ The C# scraper uses two configuration files — `appsettings.json` and `urls.jso
 
 This file contains global scraper settings such as concurrency level, timeouts, output directory, and user agent string.
 
-```json
+```jsonc
 {
   "Scraper": {
     "UrlsFile": "urls.json",            // Path to the JSON file containing URLs to scrape
@@ -175,7 +175,7 @@ if (!ConfigurationExtensions.TryGetScrapeConfig(configuration, out var config, o
 
 Defines the list of target URLs to scrape. Each URL is processed individually by the selected runner.
 
-```json
+```jsonc
 [
   "https://go.dev",
   "https://dotnet.microsoft.com"
@@ -247,7 +247,7 @@ The Go scraper reads its configuration from two JSON files: `config.json` and `u
 
 #### Configuration file: [config.json](go/config.json)
 
-```json
+```jsonc
 {
   "urlsFile": "urls.json",            // Path to the JSON file containing URLs to scrape
   "resultsDirectory": "output",       // Directory where the results JSON file will be saved
@@ -259,7 +259,7 @@ The Go scraper reads its configuration from two JSON files: `config.json` and `u
 
 #### Url file - Default: [urls.json](go/urls.json)
 
-```json
+```jsonc
 [
   "https://go.dev",
   "https://dotnet.microsoft.com"
