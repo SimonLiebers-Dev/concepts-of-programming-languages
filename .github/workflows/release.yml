@@ -39,19 +39,19 @@ jobs:
           cd csharp/WebScraper.Cli
           dotnet restore
 
-          mkdir -p ../../../dist/csharp
+          mkdir -p ../../dist/csharp
 
           # Windows
-          dotnet publish -c Release -r win-x64 --self-contained true -o ../../../dist/csharp/win
-          mv ../../../dist/csharp/win/WebScraper.Cli.exe ../../../dist/csharp/webscraper-csharp-windows.exe
+          dotnet publish -c Release -r win-x64 --self-contained true -o ../../dist/csharp/win
+          mv ../../dist/csharp/win/WebScraper.Cli.exe ../../dist/csharp/webscraper-csharp-windows.exe
 
           # macOS (Apple Silicon)
-          dotnet publish -c Release -r osx-arm64 --self-contained true -o ../../../dist/csharp/macos
-          mv ../../../dist/csharp/macos/WebScraper.Cli ../../../dist/csharp/webscraper-csharp-macos-arm64
+          dotnet publish -c Release -r osx-arm64 --self-contained true -o ../../dist/csharp/macos
+          mv ../../dist/csharp/macos/WebScraper.Cli ../../dist/csharp/webscraper-csharp-macos-arm64
 
           # Linux
-          dotnet publish -c Release -r linux-x64 --self-contained true -o ../../../dist/csharp/linux
-          mv ../../../dist/csharp/linux/WebScraper.Cli ../../../dist/csharp/webscraper-csharp-linux
+          dotnet publish -c Release -r linux-x64 --self-contained true -o ../../dist/csharp/linux
+          mv ../../dist/csharp/linux/WebScraper.Cli ../../dist/csharp/webscraper-csharp-linux
 
       # --- Upload build artifacts ---
       - name: Upload all binaries
