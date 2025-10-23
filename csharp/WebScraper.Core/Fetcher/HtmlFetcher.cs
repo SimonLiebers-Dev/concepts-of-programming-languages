@@ -31,7 +31,7 @@ public class HtmlFetcher(HttpClient httpClient, ILogger<HtmlFetcher> logger) : I
     }
 
     /// <inheritdoc />
-    public void SetHttpTimeout(int httpTimeoutSeconds = 10)
+    public void SetHttpTimeout(int httpTimeoutSeconds)
     {
         // Fallback to 10 seconds if value is not bigger than 0
         if (httpTimeoutSeconds <= 0)
@@ -57,12 +57,12 @@ public class HtmlFetcher(HttpClient httpClient, ILogger<HtmlFetcher> logger) : I
 
             // Set timeout to configured time span
             httpClient.Timeout = _timeout;
-            
+
             // Send request and await response
             using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead, ct)
                 .ConfigureAwait(false);
 
-            
+
             if (!response.IsSuccessStatusCode)
             {
                 var msg = $"{(int)response.StatusCode} {response.ReasonPhrase ?? ""}";
