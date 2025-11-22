@@ -9,6 +9,7 @@ on:
 
 env:
   DOTNET_VERSION: "10.0.x"
+  DOTNET_DIR: ${{ github.workspace }}/csharp
 
 jobs:
   build-analyze:
@@ -19,7 +20,7 @@ jobs:
       checks: write
     defaults:
       run:
-        working-directory: ${{ github.workspace }}/csharp
+        working-directory: ${{ env.DOTNET_DIR }}
 
     steps:
       - name: Checkout Repository
@@ -27,6 +28,9 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
+
+      - name: Copy Qodana Config to Root
+        run: cp ${{ env.DOTNET_DIR }}/qodana.yml ${{ github.workspace }}/qodana.yml
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -59,7 +63,7 @@ jobs:
     needs: build-analyze
     defaults:
       run:
-        working-directory: ${{ github.workspace }}/csharp
+        working-directory: ${{ env.DOTNET_DIR }}
 
     steps:
       - name: Checkout Repository
