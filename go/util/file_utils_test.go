@@ -37,7 +37,7 @@ func (m *mockFileSystem) ReadFile(name string) ([]byte, error) {
 	return data, nil
 }
 
-func (m *mockFileSystem) WriteFile(name string, data []byte, perm os.FileMode) error {
+func (m *mockFileSystem) WriteFile(name string, data []byte, _ os.FileMode) error {
 	if m.err != nil {
 		return m.err
 	}
@@ -45,7 +45,7 @@ func (m *mockFileSystem) WriteFile(name string, data []byte, perm os.FileMode) e
 	return nil
 }
 
-func (m *mockFileSystem) MakeDir(path string) error {
+func (m *mockFileSystem) MakeDir(_ string) error {
 	return nil
 }
 
