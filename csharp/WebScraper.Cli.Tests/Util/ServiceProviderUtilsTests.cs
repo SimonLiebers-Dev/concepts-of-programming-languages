@@ -23,7 +23,7 @@ public class ServiceProviderUtilsTests
         Assert.That(provider, Is.Not.Null, "Provider should not be null");
 
         var config = provider.GetService<IConfiguration>();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // Verify configuration is registered
             Assert.That(config, Is.Not.Null, "IConfiguration should be registered");
@@ -37,7 +37,7 @@ public class ServiceProviderUtilsTests
 
             // Verify main Application is registered
             Assert.That(provider.GetService<IApplication>(), Is.Not.Null);
-        });
+        }
     }
 
     [Test]

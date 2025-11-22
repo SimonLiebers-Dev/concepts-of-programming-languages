@@ -31,7 +31,7 @@ public class ConfigurationExtensionsTests
         var result = configuration.TryGetScrapeConfig(out var config, out var error);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result, Is.True);
             Assert.That(error, Is.Null);
@@ -40,7 +40,7 @@ public class ConfigurationExtensionsTests
             Assert.That(config.Concurrency, Is.EqualTo(4));
             Assert.That(config.HttpTimeoutSeconds, Is.EqualTo(15));
             Assert.That(config.UserAgent, Is.EqualTo("UserAgent"));
-        });
+        }
     }
 
     [Test]
@@ -72,11 +72,12 @@ public class ConfigurationExtensionsTests
         var result = configuration.TryGetScrapeConfig(out var config, out var error);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
+            Assert.Throws<InvalidOperationException>(() => config.Validate());
             Assert.That(result, Is.False);
             Assert.That(error, Does.Contain("Missing required configuration section"));
-        });
+        }
     }
 
     [Test]
@@ -96,16 +97,13 @@ public class ConfigurationExtensionsTests
         var result = configuration.TryGetScrapeConfig(out var config, out var error);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result, Is.False);
             Assert.That(error, Does.Contain("Configuration validation failed"));
-        });
-        Assert.Multiple(() =>
-        {
             Assert.That(error, Does.Contain("UrlsFile").Or.Contain("Concurrency").Or.Contain("HttpTimeoutSeconds"));
             Assert.That(config, Is.Not.Null);
-        });
+        }
     }
 
     [Test]
@@ -138,11 +136,11 @@ public class ConfigurationExtensionsTests
         var result = configuration.TryGetScrapeConfig(out var config, out var error);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result, Is.False);
             Assert.That(error, Does.Contain("Configuration validation failed"));
             Assert.That(config, Is.Not.Null);
-        });
+        }
     }
 }

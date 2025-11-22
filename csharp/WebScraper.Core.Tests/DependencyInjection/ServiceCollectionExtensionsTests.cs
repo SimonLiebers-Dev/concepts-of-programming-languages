@@ -26,7 +26,7 @@ public class ServiceCollectionExtensionsTests
         var provider = _services.BuildServiceProvider();
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(provider.GetService<IHtmlFetcher>(), Is.Not.Null, "IHtmlFetcher should be registered.");
             Assert.That(provider.GetService<IHtmlParser>(), Is.Not.Null, "IHtmlParser should be registered.");
@@ -34,7 +34,7 @@ public class ServiceCollectionExtensionsTests
             Assert.That(provider.GetService<IProgressBarManager>(), Is.Not.Null,
                 "IProgressBarManager should be registered.");
             Assert.That(provider.GetService<IScrapeRunner>(), Is.Not.Null, "IScrapeRunner should be registered.");
-        });
+        }
     }
 
     [Test]

@@ -160,12 +160,12 @@ public class ApplicationTests
         });
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(ex1!.ParamName, Is.EqualTo("configuration"));
             Assert.That(ex2!.ParamName, Is.EqualTo("runner"));
             Assert.That(ex3!.ParamName, Is.EqualTo("fetcher"));
-        });
+        }
     }
 
     [TearDown]

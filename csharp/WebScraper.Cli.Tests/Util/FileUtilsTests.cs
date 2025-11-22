@@ -35,11 +35,11 @@ public class FileUtilsTests
         var urls = await FileUtils.GetUrlsFromFileAsync(path);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(File.Exists(path), Is.True);
             Assert.That(urls, Is.Empty);
-        });
+        }
 
         var fileContent = await File.ReadAllTextAsync(path);
         Assert.That(fileContent.Trim(), Is.EqualTo("[]"));
@@ -106,11 +106,11 @@ public class FileUtilsTests
         var deserialized = JsonSerializer.Deserialize<List<Page>>(json);
 
         Assert.That(deserialized, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(deserialized!.Count, Is.EqualTo(1));
             Assert.That(deserialized[0].Url, Is.EqualTo(page.Url));
-        });
+        }
     }
 
     [Test]
@@ -125,11 +125,11 @@ public class FileUtilsTests
         var filePath = await FileUtils.SaveResultsToFileAsync([page], missingDir, timestamp);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(Directory.Exists(missingDir), Is.True);
             Assert.That(File.Exists(filePath), Is.True);
-        });
+        }
     }
 
     [Test]

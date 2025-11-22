@@ -7,7 +7,7 @@
 ## Table of Contents
 
 1. [Overview](#overview)  
-2. [C# Implementation (.NET 9)](#csharp-implementation)  
+2. [C# Implementation (.NET 10)](#csharp-implementation)  
    - [Architecture](#architecture-1)    
    - [Setup](#setup-1)  
    - [Configuration](#configuration-1)  
@@ -20,7 +20,7 @@
 
 ## Overview <a name="overview"></a>
 
-The **Parallel Web Scraper** demonstrates two implementations of a parallel web scraping application — one in **C# (.NET 9)** and one in **Go 1.25** — to explore and compare the concepts of **parallel programming**, **asynchronous execution**, and **configuration-driven architectures** across different languages.
+The **Parallel Web Scraper** demonstrates two implementations of a parallel web scraping application — one in **C# (.NET 10)** and one in **Go 1.25** — to explore and compare the concepts of **parallel programming**, **asynchronous execution**, and **configuration-driven architectures** across different languages.
 
 The main focus of this project lies on the **C# implementation**, which serves as a fully featured, extensible, and modular architecture. The **Go version** replicates its functionality to serve as a direct comparison for evaluating concurrency programming in both languages.
 
@@ -94,10 +94,10 @@ The result is a clean, maintainable, and extensible architecture demonstrating m
 
 ### Setup <a name="setup-1"></a>
 
-Setting up the C# implementation requires the .NET 9 SDK. The project uses the built-in .NET CLI tools and has no external dependencies beyond those available via NuGet.
+Setting up the C# implementation requires the .NET 10 SDK. The project uses the built-in .NET CLI tools and has no external dependencies beyond those available via NuGet.
 
 #### Prerequisites
-- [.NET 9 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
+- [.NET 10 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
 - A terminal or IDE such as Visual Studio Code or Rider
 
 #### Dependency Injection

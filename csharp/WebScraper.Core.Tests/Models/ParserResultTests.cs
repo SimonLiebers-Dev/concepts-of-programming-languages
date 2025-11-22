@@ -17,12 +17,12 @@ public class ParserResultTests
         var result = new ParserResult(title, links, images);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Title, Is.EqualTo(title));
             Assert.That(result.Links, Is.EqualTo(links));
             Assert.That(result.Images, Is.EqualTo(images));
-        });
+        }
     }
 
     [Test]
@@ -35,13 +35,13 @@ public class ParserResultTests
         var updated = original with { Title = "New Title" };
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(updated.Title, Is.EqualTo("New Title"));
             Assert.That(updated.Links, Is.EqualTo(original.Links));
             Assert.That(updated.Images, Is.EqualTo(original.Images));
             Assert.That(updated, Is.Not.SameAs(original));
-        });
+        }
     }
 
     [Test]
@@ -51,11 +51,11 @@ public class ParserResultTests
         var result = new ParserResult("Empty Test", [], []);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Links, Is.Empty);
             Assert.That(result.Images, Is.Empty);
-        });
+        }
     }
 
     [Test]
@@ -65,10 +65,10 @@ public class ParserResultTests
         var result = new ParserResult("Null Test", null!, null!);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Links, Is.Null);
             Assert.That(result.Images, Is.Null);
-        });
+        }
     }
 }

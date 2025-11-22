@@ -1,4 +1,3 @@
-using System.Text;
 using WebScraper.Core.Parser;
 
 namespace WebScraper.Core.Tests.Parser;
@@ -37,12 +36,12 @@ public class HtmlParserTests
 
         // Assert
         Assert.That(result, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Title, Is.EqualTo("Test Page"));
             Assert.That(result.Links, Is.EquivalentTo((string[])["https://example.com", "https://other.com"]));
             Assert.That(result.Images, Is.EquivalentTo((string[])["image1.png", "image2.png"]));
-        });
+        }
     }
 
     [Test]
@@ -52,12 +51,12 @@ public class HtmlParserTests
         var result = _parser.Parse(string.Empty);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Title, Is.Empty);
             Assert.That(result.Links, Is.Empty);
             Assert.That(result.Images, Is.Empty);
-        });
+        }
     }
 
     [Test]
@@ -109,10 +108,10 @@ public class HtmlParserTests
         var result = _parser.Parse(html);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Links, Has.Length.EqualTo(1));
             Assert.That(result.Images, Has.Length.EqualTo(1));
-        });
+        }
     }
 }

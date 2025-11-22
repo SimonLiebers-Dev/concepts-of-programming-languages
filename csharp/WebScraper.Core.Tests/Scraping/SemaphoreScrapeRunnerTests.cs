@@ -106,10 +106,10 @@ public class SemaphoreScrapeRunnerTests
         var result = await _runner.RunParallelAsync(urls, concurrencyLimit);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result, Has.Count.EqualTo(20));
             Assert.That(maxConcurrent, Is.LessThanOrEqualTo(concurrencyLimit));
-        });
+        }
     }
 }

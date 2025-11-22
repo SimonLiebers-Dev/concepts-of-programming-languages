@@ -17,12 +17,12 @@ public class ProgressBarExtensionsTests
         task.MarkAsDone(url);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(task.Value, Is.EqualTo(task.MaxValue));
             Assert.That(task.IsFinished, Is.True);
             Assert.That(task.Description, Contains.Substring("Success").And.Contains("green"));
-        });
+        }
     }
 
     [Test]
@@ -36,12 +36,12 @@ public class ProgressBarExtensionsTests
         task.MarkAsError(url);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
-            Assert.That(task.Value, Is.EqualTo(0));
+            Assert.That(task.Value, Is.Zero);
             Assert.That(task.IsFinished, Is.True);
             Assert.That(task.Description, Contains.Substring("Error").And.Contains("red"));
-        });
+        }
     }
 
     [Test]

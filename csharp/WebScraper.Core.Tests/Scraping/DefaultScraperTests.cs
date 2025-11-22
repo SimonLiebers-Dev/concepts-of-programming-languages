@@ -42,7 +42,7 @@ public class DefaultScraperTests
         var page = await _scraper.ScrapeAsync(url);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(page.Success, Is.True);
             Assert.That(page.Url, Is.EqualTo(url));
@@ -51,7 +51,7 @@ public class DefaultScraperTests
             Assert.That(page.Images, Is.EquivalentTo((string[])["img1", "img2"]));
             Assert.That(page.ErrorMessage, Is.Null);
             Assert.That(page.Timestamp, Is.Not.EqualTo(default(DateTimeOffset)));
-        });
+        }
     }
 
     [Test]
@@ -67,7 +67,7 @@ public class DefaultScraperTests
         var page = await _scraper.ScrapeAsync(url);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(page.Success, Is.False);
             Assert.That(page.ErrorMessage, Does.Contain("Network error"));
@@ -75,7 +75,7 @@ public class DefaultScraperTests
             Assert.That(page.Title, Is.Null);
             Assert.That(page.Links, Is.Empty);
             Assert.That(page.Images, Is.Empty);
-        });
+        }
     }
 
     [Test]
@@ -97,14 +97,14 @@ public class DefaultScraperTests
         var page = await _scraper.ScrapeAsync(url);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(page.Success, Is.False);
             Assert.That(page.ErrorMessage, Does.Contain("Parsing failed"));
             Assert.That(page.Url, Is.EqualTo(url));
             Assert.That(page.Links, Is.Empty);
             Assert.That(page.Images, Is.Empty);
-        });
+        }
     }
 
     [Test]

@@ -19,7 +19,7 @@ public class PageTests
         var page = Page.SuccessPage(url, title, links, images, timestamp);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(page.Url, Is.EqualTo(url));
             Assert.That(page.Title, Is.EqualTo(title));
@@ -28,7 +28,7 @@ public class PageTests
             Assert.That(page.Timestamp, Is.EqualTo(timestamp).Within(TimeSpan.FromMilliseconds(1)));
             Assert.That(page.Success, Is.True);
             Assert.That(page.ErrorMessage, Is.Null);
-        });
+        }
     }
 
     [Test]
@@ -38,11 +38,11 @@ public class PageTests
         var page = Page.SuccessPage("https://example.com", "Title", null, null);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(page.Links, Is.Empty);
             Assert.That(page.Images, Is.Empty);
-        });
+        }
     }
 
     [Test]
@@ -57,7 +57,7 @@ public class PageTests
         var page = Page.ErrorPage(url, error, timestamp);
 
         // Assert
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(page.Url, Is.EqualTo(url));
             Assert.That(page.Title, Is.Null);
@@ -66,7 +66,7 @@ public class PageTests
             Assert.That(page.Timestamp, Is.EqualTo(timestamp).Within(TimeSpan.FromMilliseconds(1)));
             Assert.That(page.Success, Is.False);
             Assert.That(page.ErrorMessage, Is.EqualTo(error));
-        });
+        }
     }
 
     [Test]

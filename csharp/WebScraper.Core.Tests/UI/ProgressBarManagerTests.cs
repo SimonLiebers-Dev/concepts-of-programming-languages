@@ -41,11 +41,11 @@ public class ProgressBarManagerTests
 
         // Assert
         Assert.That(task, Is.Not.Null);
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(task.MaxValue, Is.EqualTo(2));
             Assert.That(task.Description, Does.Contain("Fetching"));
-        });
+        }
     }
 
     [Test]

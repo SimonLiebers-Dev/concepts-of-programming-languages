@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using Spectre.Console;
-using System.Text.RegularExpressions;
 using WebScraper.Core.Extensions;
 
 namespace WebScraper.Core.UI;
@@ -90,7 +89,7 @@ internal class ProgressBarManager : IProgressBarManager
         if (Context is null)
             throw new InvalidOperationException("Renderer not started. Call StartRendering() first.");
 
-        var task = Context.AddTask(ProgressBarExtensions.GetDescription("Fetching", "yellow", url),
+        var task = Context.AddTask(url.GetDescription("Fetching", "yellow"),
             autoStart: true, maxValue: maxValue);
         _tasks.Add(task);
 
