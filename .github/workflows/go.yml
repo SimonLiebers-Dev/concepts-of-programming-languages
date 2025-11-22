@@ -36,7 +36,7 @@ jobs:
           cache: false
 
       - name: Copy Qodana Config to Root
-        run: cp ${{ env.GO_DIR }}/qodana.yml ${{ github.workspace }}/qodana.yml
+        run: cp "$GITHUB_WORKSPACE/go/qodana.yml" "$GITHUB_WORKSPACE/qodana.yml"
 
       - name: Install Dependencies
         run: go mod tidy

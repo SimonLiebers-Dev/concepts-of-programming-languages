@@ -30,7 +30,7 @@ jobs:
           fetch-depth: 0
 
       - name: Copy Qodana Config to Root
-        run: cp ${{ env.DOTNET_DIR }}/qodana.yml ${{ github.workspace }}/qodana.yml
+        run: cp "$GITHUB_WORKSPACE/csharp/qodana.yml" "$GITHUB_WORKSPACE/qodana.yml"
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
