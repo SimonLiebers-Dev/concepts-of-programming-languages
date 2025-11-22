@@ -2,6 +2,9 @@ version: "1.0"
 linter: qodana-go
 
 exclude:
+  - name: Exclude C#
+    paths:
+      - "csharp/**"
   - name: Exclude all Go test files
     paths:
       - "**/*_test.go"
