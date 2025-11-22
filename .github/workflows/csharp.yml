@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
     paths:
       - 'csharp/**'
-      - '.github/csharp.yml'
+      - '.github/workflows/csharp.yml'
 
 env:
   DOTNET_VERSION: "10.0.x"
@@ -45,7 +45,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
       - name: 'Qodana Scan'
-        uses: JetBrains/qodana-action@v2025.3
+        uses: JetBrains/qodana-action@v2025.2
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_CSHARP_TOKEN }}
         with:
