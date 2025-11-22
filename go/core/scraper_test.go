@@ -14,7 +14,7 @@ type MockFetcher struct {
 	Err      error
 }
 
-func (m *MockFetcher) Fetch(ctx context.Context, url string) ([]byte, error) {
+func (m *MockFetcher) Fetch(_ context.Context, _ string) ([]byte, error) {
 	if m.Err != nil {
 		return nil, m.Err
 	}
@@ -46,6 +46,9 @@ func TestScraper_Scrape_FetchError(t *testing.T) {
 	page, err := s.Scrape(context.Background(), "https://example.com")
 	if err == nil {
 		t.Fatal("expected error, got nil")
+	}
+	if page == nil {
+		t.Fatal("expected page not to be nil")
 	}
 	if !strings.Contains(page.Error, "fetch failed") {
 		t.Errorf("expected fetch error message, got: %s", page.Error)

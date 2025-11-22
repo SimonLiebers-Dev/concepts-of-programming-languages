@@ -5,10 +5,6 @@ exclude:
   - name: Exclude Go
     paths:
       - go/**
-  - name: Exclude Test Projects
-    paths:
-      - '**/*.Tests/**'
 linter: qodana-dotnet
-ide: QDNET
 dotnet:
   solution: WebScraper.sln

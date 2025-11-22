@@ -9,7 +9,7 @@ import (
 
 type MockScraper struct{}
 
-func (MockScraper) Scrape(ctx context.Context, url string) (*models.Page, error) {
+func (MockScraper) Scrape(_ context.Context, url string) (*models.Page, error) {
 	return &models.Page{URL: url, Title: "OK"}, nil
 }
 

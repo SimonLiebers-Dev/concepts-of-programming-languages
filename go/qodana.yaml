@@ -1,9 +1,7 @@
 version: "1.0"
 exclude:
-  - name: Exclude all Go test files
-    paths:
-      - '**/*_test.go'
   - name: Exclude C#
     paths:
       - csharp/**
+  - name: GoUnusedExportedFunction
 linter: qodana-go
