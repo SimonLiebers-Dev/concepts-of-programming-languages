@@ -35,7 +35,7 @@ public class PageTests
     public void SuccessPage_ShouldUseEmptyCollections_WhenLinksOrImagesNull()
     {
         // Act
-        var page = Page.SuccessPage("https://example.com", "Title", null, null);
+        var page = Page.SuccessPage("https://example.com", "Title");
 
         // Assert
         using (Assert.EnterMultipleScope())

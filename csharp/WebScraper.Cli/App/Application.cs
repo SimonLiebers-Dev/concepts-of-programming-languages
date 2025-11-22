@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Globalization;
 using Microsoft.Extensions.Configuration;
-using Spectre.Console;
 using WebScraper.Cli.Configuration;
 using WebScraper.Cli.Extensions;
 using WebScraper.Cli.Util;
