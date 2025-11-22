@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
     paths:
       - 'go/**'
-      - '.github/**'
+      - '.github/go.yml'
 
 jobs:
   build-test:
