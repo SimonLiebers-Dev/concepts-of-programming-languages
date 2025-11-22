@@ -1,16 +1,14 @@
 version: "1.0"
 profile:
   name: qodana.starter
-
-ide: QDNET
-
-dotnet:
-  solution: csharp/WebScraper.sln
-
 exclude:
   - name: Exclude Go
     paths:
-      - "go/**"
+      - go/**
   - name: Exclude Test Projects
     paths:
-      - "**/*.Tests/**"
+      - '**/*.Tests/**'
+linter: qodana-dotnet
+ide: QDNET
+dotnet:
+  solution: WebScraper.sln
