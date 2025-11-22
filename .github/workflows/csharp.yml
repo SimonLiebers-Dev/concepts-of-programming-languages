@@ -26,6 +26,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
 
+      - name: Copy Qodana Config to Root
+        run: cp "$GITHUB_WORKSPACE/csharp/qodana.yaml" "$GITHUB_WORKSPACE/qodana.yaml"
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
