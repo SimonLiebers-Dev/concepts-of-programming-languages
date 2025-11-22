@@ -41,7 +41,7 @@ jobs:
         run: go build -v ./...
 
       - name: Qodana Scan
-        uses: jetbrains/qodana-action@v2024.3
+        uses: JetBrains/qodana-action@v2025.2
         with:
           pr-mode: false
           use-caches: true
