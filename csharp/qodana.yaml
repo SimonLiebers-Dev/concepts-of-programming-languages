@@ -1,6 +1,16 @@
 version: "1.0"
 profile:
   name: qodana.starter
+
 ide: QDNET
+
 dotnet:
-  solution: WebScraper.sln
+  solution: csharp/WebScraper.sln
+
+exclude:
+  - name: Exclude Go
+    paths:
+      - "go/**"
+  - name: Exclude Test Projects
+    paths:
+      - "**/*.Tests/**"
