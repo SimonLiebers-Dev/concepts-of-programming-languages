@@ -51,8 +51,8 @@ jobs:
           args: |
             --linter,qodana-dotnet,
             --within-docker,false
-          env:
-            QODANA_TOKEN: ${{ secrets.QODANA_CSHARP_TOKEN }}
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_CSHARP_TOKEN }}
   
   test:
     runs-on: ubuntu-latest

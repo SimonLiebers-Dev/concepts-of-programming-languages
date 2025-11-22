@@ -49,9 +49,11 @@ jobs:
           use-annotations: true
           upload-result: false
           push-fixes: 'none'
-          linter: "qodana-go:2025.2"
-          env:
-            QODANA_TOKEN: ${{ secrets.QODANA_GO_TOKEN }}
+          args: |
+            --linter,qodana-go,
+            --within-docker,false
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_GO_TOKEN }}
 
   test:
     runs-on: ubuntu-latest
