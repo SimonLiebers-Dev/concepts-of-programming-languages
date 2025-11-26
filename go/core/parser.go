@@ -7,9 +7,14 @@ import (
 	"golang.org/x/net/html"
 )
 
-// ParseHTML extracts the <title> text, all <a href="..."> links and all <img src="...">
-// from an HTML document provided via an io.Reader.
-// It returns the page title (trimmed) and a slice of links and images.
+// ParseHTML extracts structured data from an HTML document.
+// It parses the document to find:
+//   - The text content of the first <title> element (trimmed of whitespace)
+//   - All href attributes from <a> elements (anchor links)
+//   - All src attributes from <img> elements (image sources)
+//
+// Returns the page title, slice of links, slice of images, and any parsing error.
+// Empty strings in href or src attributes are excluded from results.
 func ParseHTML(body io.Reader) (string, []string, []string, error) {
 	doc, err := html.Parse(body)
 	if err != nil {

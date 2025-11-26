@@ -8,7 +8,11 @@ import (
 	"go-scraper/ui"
 )
 
-// RunSequential scrapes URLs one by one and updates the UI progress.
+// RunSequential scrapes URLs one at a time in sequential order.
+// Each URL is processed completely before moving to the next one.
+// Progress is tracked and displayed via the UI progress bar manager.
+// Context cancellation is respected - if ctx is cancelled, remaining URLs are skipped.
+// Returns a slice of Page results in the same order as the input URLs.
 func RunSequential(ctx context.Context, urls []string, scraper Scraper) []*models.Page {
 	pbm := ui.NewProgressBarManager(len(urls))
 	defer pbm.StopRenderer()
@@ -31,7 +35,14 @@ func RunSequential(ctx context.Context, urls []string, scraper Scraper) []*model
 	return results
 }
 
-// RunParallel scrapes URLs concurrently using a classic worker pool pattern.
+// RunParallel scrapes URLs concurrently using a worker pool pattern.
+// Multiple workers process URLs in parallel up to the specified concurrency limit.
+// Progress is tracked and displayed via the UI progress bar manager.
+// Context cancellation is respected - workers will stop processing when ctx is cancelled.
+// Returns a slice of Page results (order may differ from input URLs due to parallelism).
+//
+// The concurrency parameter controls the maximum number of simultaneous workers.
+// If concurrency <= 0, it defaults to 1 (sequential processing).
 func RunParallel(ctx context.Context, urls []string, scraper Scraper, concurrency int) []*models.Page {
 	// Enforce minimal concurrency of 1
 	if concurrency <= 0 {

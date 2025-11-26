@@ -7,8 +7,13 @@ import (
 	"time"
 )
 
+const (
+	// AppTimeout defines the maximum execution time for the entire application
+	AppTimeout = 10 * time.Minute
+)
+
 func main() {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), AppTimeout)
 	defer cancel()
 
 	if err := app.Run(ctx); err != nil {

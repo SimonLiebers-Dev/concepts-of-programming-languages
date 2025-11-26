@@ -7,13 +7,21 @@ import (
 	"github.com/fatih/color"
 )
 
+const (
+	// SeparatorWidth defines the character width of console separators
+	SeparatorWidth = 100
+	// SeparatorChar is the Unicode character used for separators
+	SeparatorChar = "─"
+)
+
 // PrintHeader renders the app's ASCII header and metadata.
+// This should be called once at application startup to display branding information.
 func PrintHeader() {
 	const asciiHeader = `
-__          __  _     _____                                
-\ \        / / | |   / ____|                               
- \ \  /\  / /__| |__| (___   ___ _ __ __ _ _ __   ___ _ __ 
-  \ \/  \/ / _ \ '_ \\___ \ / __| '__/ _' | '_ \ / _ \ '__|	
+__          __  _     _____
+\ \        / / | |   / ____|
+ \ \  /\  / /__| |__| (___   ___ _ __ __ _ _ __   ___ _ __
+  \ \/  \/ / _ \ '_ \\___ \ / __| '__/ _' | '_ \ / _ \ '__|
    \  /\  /  __/ |_) |___) | (__| | | (_| | |_) |  __/ |
     \/  \/ \___|_.__/_____/ \___|_|  \__,_| .__/ \___|_|
                                           | |
@@ -35,7 +43,7 @@ __          __  _     _____
 	}
 }
 
-// PrintSeparator renders a text based separator
+// PrintSeparator renders a horizontal line separator to visually divide console output.
 func PrintSeparator() {
-	fmt.Println(strings.Repeat("─", 100))
+	fmt.Println(strings.Repeat(SeparatorChar, SeparatorWidth))
 }

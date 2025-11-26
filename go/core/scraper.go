@@ -8,22 +8,35 @@ import (
 	"time"
 )
 
-// Scraper defines an interface for scraping a single page.
+// Scraper defines an interface for scraping a single web page.
+// This abstraction allows injecting mock implementations during testing,
+// enabling tests without making actual HTTP requests or parsing HTML.
+//
+// Implementations should:
+//   - Respect context cancellation and timeouts
+//   - Return a Page object containing extracted data (title, links, images)
+//   - Populate the Page.Error field if scraping fails, rather than returning nil
+//   - Return both a Page and an error to provide structured data even on failure
 type Scraper interface {
 	Scrape(ctx context.Context, url string) (*models.Page, error)
 }
 
-// DefaultScraper is the default implementation that uses a Fetcher + HTML parser.
+// DefaultScraper is the production implementation that combines HTTP fetching
+// with HTML parsing to extract structured data from web pages.
 type DefaultScraper struct {
-	Fetcher HTTPFetcher
+	Fetcher HTTPFetcher // HTTPFetcher implementation for retrieving page content
 }
 
 // NewScraper creates a DefaultScraper with the provided HTTPFetcher.
+// The fetcher will be used to retrieve page content before parsing.
 func NewScraper(fetcher HTTPFetcher) *DefaultScraper {
 	return &DefaultScraper{Fetcher: fetcher}
 }
 
-// Scrape fetches the page, parses its title and links, and returns a Page model.
+// Scrape fetches a web page, parses its HTML content, and returns a Page model
+// containing the extracted title, links, and images. The Page.Error field is
+// populated if fetching or parsing fails. An error is also returned for
+// programmatic error handling.
 func (s *DefaultScraper) Scrape(ctx context.Context, url string) (*models.Page, error) {
 	startTime := time.Now()
 
@@ -42,7 +55,7 @@ func (s *DefaultScraper) Scrape(ctx context.Context, url string) (*models.Page, 
 			URL:       url,
 			Error:     fmt.Sprintf("fetch failed: %v", err),
 			TimeStamp: startTime,
-		}, fmt.Errorf("fetching %s: %w", url, err)
+		}, fmt.Errorf("failed to fetch %s: %w", url, err)
 	}
 
 	title, links, images, err := ParseHTML(bytesToReader(body))
@@ -51,7 +64,7 @@ func (s *DefaultScraper) Scrape(ctx context.Context, url string) (*models.Page, 
 			URL:       url,
 			Error:     fmt.Sprintf("parse failed: %v", err),
 			TimeStamp: startTime,
-		}, fmt.Errorf("parsing %s: %w", url, err)
+		}, fmt.Errorf("failed to parse HTML from %s: %w", url, err)
 	}
 
 	return &models.Page{
