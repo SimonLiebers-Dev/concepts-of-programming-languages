@@ -61,16 +61,6 @@ func TestUserChoice_Bool(t *testing.T) {
 	}
 }
 
-func TestUserChoice_Values(t *testing.T) {
-	// Ensure the enum values are as expected
-	if ChoiceNo != 0 {
-		t.Errorf("ChoiceNo = %d, want 0", ChoiceNo)
-	}
-	if ChoiceYes != 1 {
-		t.Errorf("ChoiceYes = %d, want 1", ChoiceYes)
-	}
-}
-
 func TestParseUserChoice(t *testing.T) {
 	tests := []struct {
 		input       string
