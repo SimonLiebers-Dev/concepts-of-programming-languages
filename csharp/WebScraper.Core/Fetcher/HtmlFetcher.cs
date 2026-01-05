@@ -13,8 +13,8 @@ public class HtmlFetcher(HttpClient httpClient, ILogger<HtmlFetcher> logger) : I
         "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6.2 " +
         "Mobile/15E148 Safari/604.1";
 
-    private string _userAgent = DefaultUserAgent;
-    private TimeSpan _timeout = TimeSpan.FromSeconds(10);
+    private static string _userAgent = DefaultUserAgent;
+    private static TimeSpan _timeout = TimeSpan.FromSeconds(10);
 
     /// <inheritdoc />
     public void SetUserAgent(string userAgent)
@@ -38,6 +38,7 @@ public class HtmlFetcher(HttpClient httpClient, ILogger<HtmlFetcher> logger) : I
             httpTimeoutSeconds = 10;
 
         _timeout = TimeSpan.FromSeconds(httpTimeoutSeconds);
+        httpClient.Timeout = _timeout;
 
         logger.LogInformation("HTTP timeout set to {TimeoutSeconds} seconds.", httpTimeoutSeconds);
     }
@@ -56,7 +57,8 @@ public class HtmlFetcher(HttpClient httpClient, ILogger<HtmlFetcher> logger) : I
             logger.LogDebug("Fetching {Url} ...", url);
 
             // Set timeout to configured time span
-            httpClient.Timeout = _timeout;
+            if (!_timeout.Equals(httpClient.Timeout))
+                httpClient.Timeout = _timeout;
 
             // Send request and await response
             using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseContentRead, ct)
